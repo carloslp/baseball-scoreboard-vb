@@ -67,9 +67,10 @@
   }
 
   function getOrdinal(number) {
-    const suffixes = ['th','st','nd','rd']
     const lastTwoDigits = number % 100
-    return number + (suffixes[(lastTwoDigits-20)%10] || suffixes[lastTwoDigits] || suffixes[0])
+    if (lastTwoDigits >= 11 && lastTwoDigits <= 13) return number + 'th'
+    const lastDigit = number % 10
+    return number + (['th','st','nd','rd'][lastDigit] || 'th')
   }
 </script>
 

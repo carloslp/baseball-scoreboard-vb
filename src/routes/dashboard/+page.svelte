@@ -142,7 +142,7 @@
         strikes: 0
       })
     } else {
-      await updateMatch({ outs: match.outs + 1 })
+      await updateMatch({ outs: match.outs + 1, balls: 0, strikes: 0 })
     }
   }
 

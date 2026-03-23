@@ -1,42 +1,60 @@
-# sv
+# Baseball Scoreboard
 
-Everything you need to build a Svelte project, powered by [`sv`](https://github.com/sveltejs/cli).
+A real-time baseball scoreboard web app built with SvelteKit and Supabase. Manage live game scores from a dashboard and broadcast them via a transparent OBS overlay.
 
-## Creating a project
+## Features
 
-If you're seeing this, you've probably already done this step. Congrats!
+- **Dashboard** — Control panel to manage home/away scores, balls, strikes, outs, and inning. Team names and colors are customizable.
+- **OBS Overlay** — Transparent "score bug" overlay at `/obs/[token]` that updates in real-time via Supabase Realtime.
+- **Authentication** — Email/password login and registration via Supabase Auth.
+- **Auto inning advance** — Recording the 3rd out automatically advances the inning half and resets the count.
+
+## Tech Stack
+
+- [SvelteKit](https://kit.svelte.dev/) + Vite
+- [Supabase](https://supabase.com/) — PostgreSQL database, Auth, and Realtime
+
+## Setup
+
+### 1. Supabase project
+
+1. Create a project at [supabase.com](https://supabase.com).
+2. Run the SQL in `supabase/schema.sql` in the Supabase SQL editor to create the `matches` table and RLS policies.
+
+### 2. Environment variables
+
+Copy `.env.example` to `.env` and fill in your Supabase credentials:
 
 ```sh
-# create a new project
-npx sv create my-app
+cp .env.example .env
 ```
 
-To recreate this project with the same configuration:
-
-```sh
-# recreate this project
-npx sv@0.12.8 create --template minimal --types jsdoc --install npm .
+```
+VITE_SUPABASE_URL=https://your-project.supabase.co
+VITE_SUPABASE_ANON_KEY=your-anon-key
 ```
 
-## Developing
-
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
+### 3. Install and run
 
 ```sh
+npm install
 npm run dev
-
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
 ```
+
+## Routes
+
+| Route | Description |
+|-------|-------------|
+| `/` | Redirects to `/dashboard` (authenticated) or `/login` |
+| `/login` | Login / register |
+| `/dashboard` | Protected match control panel |
+| `/obs/[token]` | Public transparent OBS overlay |
 
 ## Building
 
-To create a production version of your app:
-
 ```sh
 npm run build
+npm run preview
 ```
 
-You can preview the production build with `npm run preview`.
-
-> To deploy your app, you may need to install an [adapter](https://svelte.dev/docs/kit/adapters) for your target environment.
+> To deploy, install a [SvelteKit adapter](https://svelte.dev/docs/kit/adapters) for your target environment.
