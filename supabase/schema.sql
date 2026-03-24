@@ -44,6 +44,14 @@ create policy "Public can view match by obs token"
   on public.matches for select
   using (true);
 
+-- Enable Supabase Realtime for the matches table so changes are broadcast to subscribers
+alter publication supabase_realtime add table public.matches;
+
+-- Use FULL replica identity so UPDATE events include all column values in payload.new,
+-- not just the primary key and changed columns. This ensures the OBS overlay receives
+-- complete row data on every change.
+alter table public.matches replica identity full;
+
 create or replace function get_active_match_by_token(p_token text)
 returns setof public.matches
 language sql
