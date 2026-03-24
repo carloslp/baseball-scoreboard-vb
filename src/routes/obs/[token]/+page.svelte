@@ -125,6 +125,22 @@
             <span class="out-pip {i < match.outs ? 'filled' : ''}"></span>
           {/each}
         </div>
+        <svg class="bases-svg" viewBox="-6 -6 112 112" role="img" aria-label="Baseball diamond">
+          <polygon points="50,2 98,50 50,98 2,50" fill="none" stroke="rgba(255,255,255,0.18)" stroke-width="1.5"/>
+          <polygon points="50,88 56,94 50,100 44,94" fill="rgba(255,255,255,0.25)"/>
+          <polygon points="50,-4 56,2 50,8 44,2"
+            fill={match.base2 ? '#f0c040' : 'rgba(255,255,255,0.08)'}
+            stroke={match.base2 ? '#f0c040' : 'rgba(255,255,255,0.35)'}
+            stroke-width="2"/>
+          <polygon points="88,50 98,42 106,50 98,58"
+            fill={match.base1 ? '#f0c040' : 'rgba(255,255,255,0.08)'}
+            stroke={match.base1 ? '#f0c040' : 'rgba(255,255,255,0.35)'}
+            stroke-width="2"/>
+          <polygon points="-6,50 2,42 10,50 2,58"
+            fill={match.base3 ? '#f0c040' : 'rgba(255,255,255,0.08)'}
+            stroke={match.base3 ? '#f0c040' : 'rgba(255,255,255,0.35)'}
+            stroke-width="2"/>
+        </svg>
       </div>
     </div>
   {/if}
@@ -263,6 +279,12 @@
   .outs-pips {
     display: flex;
     gap: 3px;
+  }
+
+  .bases-svg {
+    width: 44px;
+    height: 44px;
+    overflow: visible;
   }
 
   .out-pip {
