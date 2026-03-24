@@ -139,7 +139,10 @@
         inning: newInning,
         inning_half: newInningHalf,
         balls: 0,
-        strikes: 0
+        strikes: 0,
+        base1: false,
+        base2: false,
+        base3: false
       })
     } else {
       await updateMatch({ outs: match.outs + 1, balls: 0, strikes: 0 })
@@ -321,56 +324,30 @@
 
               <div class="bases-section">
                 <h2>Bases</h2>
-                <div class="bases-container">
-                  <svg class="diamond-svg" viewBox="-8 -8 116 116" width="140" height="140" role="img" aria-label="Baseball diamond">
-                    <!-- diamond outline -->
-                    <polygon points="50,2 98,50 50,98 2,50" fill="none" stroke="rgba(255,255,255,0.12)" stroke-width="1.5"/>
-                    <!-- home plate (decorative) -->
-                    <polygon points="50,87 57,94 50,101 43,94" fill="rgba(255,255,255,0.25)"/>
-                    <!-- 2nd base (top) -->
-                    <polygon
-                      points="50,-6 57,2 50,10 43,2"
-                      fill={match.base2 ? '#f0c040' : 'rgba(255,255,255,0.07)'}
-                      stroke={match.base2 ? '#f0c040' : 'rgba(255,255,255,0.35)'}
-                      stroke-width="2"
-                      class="base-btn"
+                <div class="bases-buttons">
+                  <div class="bases-row-top">
+                    <button
+                      class="base-btn-ui base2 {match.base2 ? 'occupied' : ''}"
                       on:click={() => toggleBase(2)}
-                      role="button"
-                      tabindex="0"
                       aria-label="2nd base"
-                      on:keydown={(e) => e.key === 'Enter' && toggleBase(2)}
-                    />
-                    <!-- 1st base (right) -->
-                    <polygon
-                      points="88,50 98,42 106,50 98,58"
-                      fill={match.base1 ? '#f0c040' : 'rgba(255,255,255,0.07)'}
-                      stroke={match.base1 ? '#f0c040' : 'rgba(255,255,255,0.35)'}
-                      stroke-width="2"
-                      class="base-btn"
-                      on:click={() => toggleBase(1)}
-                      role="button"
-                      tabindex="0"
-                      aria-label="1st base"
-                      on:keydown={(e) => e.key === 'Enter' && toggleBase(1)}
-                    />
-                    <!-- 3rd base (left) -->
-                    <polygon
-                      points="-6,50 2,42 10,50 2,58"
-                      fill={match.base3 ? '#f0c040' : 'rgba(255,255,255,0.07)'}
-                      stroke={match.base3 ? '#f0c040' : 'rgba(255,255,255,0.35)'}
-                      stroke-width="2"
-                      class="base-btn"
+                      title="2nd base"
+                    >2B</button>
+                  </div>
+                  <div class="bases-row-mid">
+                    <button
+                      class="base-btn-ui base3 {match.base3 ? 'occupied' : ''}"
                       on:click={() => toggleBase(3)}
-                      role="button"
-                      tabindex="0"
                       aria-label="3rd base"
-                      on:keydown={(e) => e.key === 'Enter' && toggleBase(3)}
-                    />
-                    <!-- base labels -->
-                    <text x="50" y="-10" font-size="9" fill="rgba(255,255,255,0.4)" text-anchor="middle" font-family="sans-serif">2B</text>
-                    <text x="110" y="53" font-size="9" fill="rgba(255,255,255,0.4)" text-anchor="start" font-family="sans-serif">1B</text>
-                    <text x="-10" y="53" font-size="9" fill="rgba(255,255,255,0.4)" text-anchor="end" font-family="sans-serif">3B</text>
-                  </svg>
+                      title="3rd base"
+                    >3B</button>
+                    <div class="bases-gap"></div>
+                    <button
+                      class="base-btn-ui base1 {match.base1 ? 'occupied' : ''}"
+                      on:click={() => toggleBase(1)}
+                      aria-label="1st base"
+                      title="1st base"
+                    >1B</button>
+                  </div>
                 </div>
                 <button class="btn-clear" on:click={clearBases}>Clear Bases</button>
               </div>
@@ -870,23 +847,109 @@
     letter-spacing: 0.05em;
   }
 
-  .bases-container {
+  .bases-buttons {
     display: flex;
-    justify-content: center;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
     margin-bottom: 0.75rem;
   }
 
-  .diamond-svg {
-    overflow: visible;
+  .bases-row-top {
+    display: flex;
+    justify-content: center;
   }
 
-  .base-btn {
+  .bases-row-mid {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .bases-gap {
+    width: 56px;
+  }
+
+  .base-btn-ui {
+    width: 56px;
+    height: 56px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 800;
+    letter-spacing: 0.05em;
+    border: 2px solid;
+    transition: background 0.15s, border-color 0.15s, transform 0.1s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     cursor: pointer;
-    transition: filter 0.15s;
   }
 
-  .base-btn:hover {
-    filter: brightness(1.3);
+  .base-btn-ui:active {
+    transform: scale(0.93);
+  }
+
+  /* 1st base — green */
+  .base-btn-ui.base1 {
+    border-color: rgba(74, 222, 128, 0.35);
+    background: rgba(74, 222, 128, 0.06);
+    color: rgba(74, 222, 128, 0.55);
+  }
+  .base-btn-ui.base1:hover {
+    border-color: rgba(74, 222, 128, 0.6);
+    background: rgba(74, 222, 128, 0.14);
+    color: #4ade80;
+  }
+  .base-btn-ui.base1.occupied {
+    background: #4ade80;
+    border-color: #4ade80;
+    color: #0f1117;
+  }
+  .base-btn-ui.base1.occupied:hover {
+    background: #22c55e;
+    border-color: #22c55e;
+  }
+
+  /* 2nd base — gold */
+  .base-btn-ui.base2 {
+    border-color: rgba(240, 192, 64, 0.35);
+    background: rgba(240, 192, 64, 0.06);
+    color: rgba(240, 192, 64, 0.55);
+  }
+  .base-btn-ui.base2:hover {
+    border-color: rgba(240, 192, 64, 0.6);
+    background: rgba(240, 192, 64, 0.14);
+    color: #f0c040;
+  }
+  .base-btn-ui.base2.occupied {
+    background: #f0c040;
+    border-color: #f0c040;
+    color: #0f1117;
+  }
+  .base-btn-ui.base2.occupied:hover {
+    background: #d4a900;
+    border-color: #d4a900;
+  }
+
+  /* 3rd base — blue */
+  .base-btn-ui.base3 {
+    border-color: rgba(99, 179, 237, 0.35);
+    background: rgba(99, 179, 237, 0.06);
+    color: rgba(99, 179, 237, 0.55);
+  }
+  .base-btn-ui.base3:hover {
+    border-color: rgba(99, 179, 237, 0.6);
+    background: rgba(99, 179, 237, 0.14);
+    color: #63b3ed;
+  }
+  .base-btn-ui.base3.occupied {
+    background: #63b3ed;
+    border-color: #63b3ed;
+    color: #0f1117;
+  }
+  .base-btn-ui.base3.occupied:hover {
+    background: #3b9de0;
+    border-color: #3b9de0;
   }
 
   .count-card {
@@ -990,9 +1053,14 @@
       height: 52px;
     }
 
-    .diamond-svg {
-      width: 160px;
-      height: 160px;
+    .base-btn-ui {
+      width: 64px;
+      height: 64px;
+      font-size: 0.95rem;
+    }
+
+    .bases-gap {
+      width: 64px;
     }
 
     .inning-number {
