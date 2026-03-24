@@ -125,6 +125,9 @@
             <span class="out-pip {i < match.outs ? 'filled' : ''}"></span>
           {/each}
         </div>
+      </div>
+
+      <div class="bases-col">
         <svg class="bases-svg" viewBox="-6 -6 112 112" role="img" aria-label="Baseball diamond">
           <polygon points="50,2 98,50 50,98 2,50" fill="none" stroke="rgba(255,255,255,0.18)" stroke-width="1.5"/>
           <polygon points="50,88 56,94 50,100 44,94" fill="rgba(255,255,255,0.25)"/>
@@ -279,6 +282,14 @@
   .outs-pips {
     display: flex;
     gap: 3px;
+  }
+
+  .bases-col {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.4rem 0.75rem;
+    border-left: 1px solid rgba(255,255,255,0.1);
   }
 
   .bases-svg {
