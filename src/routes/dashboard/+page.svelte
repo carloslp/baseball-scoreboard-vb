@@ -294,82 +294,87 @@
           </section>
 
           <section class="card inning-card">
-            <h2>Inning</h2>
-            <div class="inning-control">
-              <button class="btn-icon" on:click={() => adjustInning(-1)} disabled={match.inning <= 1}>▼</button>
-              <div class="inning-display">
-                <div class="inning-half-indicator">
-                  <button
-                    class="half-btn {match.inning_half === 'top' ? 'active' : ''}"
-                    on:click={() => updateMatch({ inning_half: 'top' })}
-                    title="Top of inning"
-                  >▲</button>
-                  <button
-                    class="half-btn {match.inning_half === 'bottom' ? 'active' : ''}"
-                    on:click={() => updateMatch({ inning_half: 'bottom' })}
-                    title="Bottom of inning"
-                  >▼</button>
+            <div class="inning-bases-row">
+              <div class="inning-section">
+                <h2>Inning</h2>
+                <div class="inning-control">
+                  <button class="btn-icon" on:click={() => adjustInning(-1)} disabled={match.inning <= 1}>▼</button>
+                  <div class="inning-display">
+                    <div class="inning-half-indicator">
+                      <button
+                        class="half-btn {match.inning_half === 'top' ? 'active' : ''}"
+                        on:click={() => updateMatch({ inning_half: 'top' })}
+                        title="Top of inning"
+                      >▲</button>
+                      <button
+                        class="half-btn {match.inning_half === 'bottom' ? 'active' : ''}"
+                        on:click={() => updateMatch({ inning_half: 'bottom' })}
+                        title="Bottom of inning"
+                      >▼</button>
+                    </div>
+                    <span class="inning-number">{match.inning}</span>
+                  </div>
+                  <button class="btn-icon" on:click={() => adjustInning(1)}>▲</button>
                 </div>
-                <span class="inning-number">{match.inning}</span>
+                <div class="inning-label">{match.inning_half === 'top' ? 'TOP' : 'BOTTOM'} of {match.inning}</div>
               </div>
-              <button class="btn-icon" on:click={() => adjustInning(1)}>▲</button>
-            </div>
-            <div class="inning-label">{match.inning_half === 'top' ? 'TOP' : 'BOTTOM'} of {match.inning}</div>
 
-            <div class="bases-divider"></div>
-            <h2>Bases</h2>
-            <div class="bases-container">
-              <svg class="diamond-svg" viewBox="-8 -8 116 116" width="120" height="120" role="img" aria-label="Baseball diamond">
-                <!-- diamond outline -->
-                <polygon points="50,2 98,50 50,98 2,50" fill="none" stroke="rgba(255,255,255,0.12)" stroke-width="1.5"/>
-                <!-- home plate (decorative) -->
-                <polygon points="50,87 57,94 50,101 43,94" fill="rgba(255,255,255,0.25)"/>
-                <!-- 2nd base (top) -->
-                <polygon
-                  points="50,-6 57,2 50,10 43,2"
-                  fill={match.base2 ? '#f0c040' : 'rgba(255,255,255,0.07)'}
-                  stroke={match.base2 ? '#f0c040' : 'rgba(255,255,255,0.35)'}
-                  stroke-width="2"
-                  class="base-btn"
-                  on:click={() => toggleBase(2)}
-                  role="button"
-                  tabindex="0"
-                  aria-label="2nd base"
-                  on:keydown={(e) => e.key === 'Enter' && toggleBase(2)}
-                />
-                <!-- 1st base (right) -->
-                <polygon
-                  points="88,50 98,42 106,50 98,58"
-                  fill={match.base1 ? '#f0c040' : 'rgba(255,255,255,0.07)'}
-                  stroke={match.base1 ? '#f0c040' : 'rgba(255,255,255,0.35)'}
-                  stroke-width="2"
-                  class="base-btn"
-                  on:click={() => toggleBase(1)}
-                  role="button"
-                  tabindex="0"
-                  aria-label="1st base"
-                  on:keydown={(e) => e.key === 'Enter' && toggleBase(1)}
-                />
-                <!-- 3rd base (left) -->
-                <polygon
-                  points="-6,50 2,42 10,50 2,58"
-                  fill={match.base3 ? '#f0c040' : 'rgba(255,255,255,0.07)'}
-                  stroke={match.base3 ? '#f0c040' : 'rgba(255,255,255,0.35)'}
-                  stroke-width="2"
-                  class="base-btn"
-                  on:click={() => toggleBase(3)}
-                  role="button"
-                  tabindex="0"
-                  aria-label="3rd base"
-                  on:keydown={(e) => e.key === 'Enter' && toggleBase(3)}
-                />
-                <!-- base labels -->
-                <text x="50" y="-10" font-size="9" fill="rgba(255,255,255,0.4)" text-anchor="middle" font-family="sans-serif">2B</text>
-                <text x="110" y="53" font-size="9" fill="rgba(255,255,255,0.4)" text-anchor="start" font-family="sans-serif">1B</text>
-                <text x="-10" y="53" font-size="9" fill="rgba(255,255,255,0.4)" text-anchor="end" font-family="sans-serif">3B</text>
-              </svg>
+              <div class="bases-section">
+                <h2>Bases</h2>
+                <div class="bases-container">
+                  <svg class="diamond-svg" viewBox="-8 -8 116 116" width="140" height="140" role="img" aria-label="Baseball diamond">
+                    <!-- diamond outline -->
+                    <polygon points="50,2 98,50 50,98 2,50" fill="none" stroke="rgba(255,255,255,0.12)" stroke-width="1.5"/>
+                    <!-- home plate (decorative) -->
+                    <polygon points="50,87 57,94 50,101 43,94" fill="rgba(255,255,255,0.25)"/>
+                    <!-- 2nd base (top) -->
+                    <polygon
+                      points="50,-6 57,2 50,10 43,2"
+                      fill={match.base2 ? '#f0c040' : 'rgba(255,255,255,0.07)'}
+                      stroke={match.base2 ? '#f0c040' : 'rgba(255,255,255,0.35)'}
+                      stroke-width="2"
+                      class="base-btn"
+                      on:click={() => toggleBase(2)}
+                      role="button"
+                      tabindex="0"
+                      aria-label="2nd base"
+                      on:keydown={(e) => e.key === 'Enter' && toggleBase(2)}
+                    />
+                    <!-- 1st base (right) -->
+                    <polygon
+                      points="88,50 98,42 106,50 98,58"
+                      fill={match.base1 ? '#f0c040' : 'rgba(255,255,255,0.07)'}
+                      stroke={match.base1 ? '#f0c040' : 'rgba(255,255,255,0.35)'}
+                      stroke-width="2"
+                      class="base-btn"
+                      on:click={() => toggleBase(1)}
+                      role="button"
+                      tabindex="0"
+                      aria-label="1st base"
+                      on:keydown={(e) => e.key === 'Enter' && toggleBase(1)}
+                    />
+                    <!-- 3rd base (left) -->
+                    <polygon
+                      points="-6,50 2,42 10,50 2,58"
+                      fill={match.base3 ? '#f0c040' : 'rgba(255,255,255,0.07)'}
+                      stroke={match.base3 ? '#f0c040' : 'rgba(255,255,255,0.35)'}
+                      stroke-width="2"
+                      class="base-btn"
+                      on:click={() => toggleBase(3)}
+                      role="button"
+                      tabindex="0"
+                      aria-label="3rd base"
+                      on:keydown={(e) => e.key === 'Enter' && toggleBase(3)}
+                    />
+                    <!-- base labels -->
+                    <text x="50" y="-10" font-size="9" fill="rgba(255,255,255,0.4)" text-anchor="middle" font-family="sans-serif">2B</text>
+                    <text x="110" y="53" font-size="9" fill="rgba(255,255,255,0.4)" text-anchor="start" font-family="sans-serif">1B</text>
+                    <text x="-10" y="53" font-size="9" fill="rgba(255,255,255,0.4)" text-anchor="end" font-family="sans-serif">3B</text>
+                  </svg>
+                </div>
+                <button class="btn-clear" on:click={clearBases}>Clear Bases</button>
+              </div>
             </div>
-            <button class="btn-clear" on:click={clearBases}>Clear Bases</button>
           </section>
 
           <section class="card count-card">
@@ -620,12 +625,27 @@
 
   .scoreboard-grid {
     display: grid;
-    grid-template-columns: 1fr 280px 1fr;
+    grid-template-columns: 1fr auto 1fr;
     gap: 1rem;
     align-items: start;
   }
 
-  @media (max-width: 900px) {
+  @media (max-width: 1024px) and (min-width: 769px) {
+    .scoreboard-grid {
+      grid-template-columns: 1fr 1fr;
+    }
+    .score-card {
+      grid-column: 1 / 3;
+    }
+    .inning-card {
+      grid-column: 1 / 2;
+    }
+    .count-card {
+      grid-column: 2 / 3;
+    }
+  }
+
+  @media (max-width: 768px) {
     .scoreboard-grid {
       grid-template-columns: 1fr;
     }
@@ -749,6 +769,27 @@
     text-align: center;
   }
 
+  .inning-bases-row {
+    display: flex;
+    gap: 1.5rem;
+    align-items: flex-start;
+    justify-content: center;
+  }
+
+  .inning-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 0 0 auto;
+  }
+
+  .bases-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 0 0 auto;
+  }
+
   .inning-control {
     display: flex;
     align-items: center;
@@ -829,12 +870,6 @@
     letter-spacing: 0.05em;
   }
 
-  .bases-divider {
-    height: 1px;
-    background: rgba(255,255,255,0.07);
-    margin: 1rem 0;
-  }
-
   .bases-container {
     display: flex;
     justify-content: center;
@@ -858,7 +893,7 @@
     grid-column: 3 / 4;
   }
 
-  @media (max-width: 900px) {
+  @media (max-width: 768px) {
     .count-card {
       grid-column: 1;
     }
@@ -936,6 +971,37 @@
     color: #fff;
     line-height: 1;
     font-variant-numeric: tabular-nums;
+  }
+
+  @media (min-width: 769px) and (max-width: 1024px) {
+    .score-btn,
+    .btn-icon,
+    .count-btn {
+      min-height: 52px;
+    }
+
+    .score-btn {
+      width: 52px;
+      height: 52px;
+    }
+
+    .btn-icon {
+      width: 52px;
+      height: 52px;
+    }
+
+    .diamond-svg {
+      width: 160px;
+      height: 160px;
+    }
+
+    .inning-number {
+      font-size: 4rem;
+    }
+
+    .score-display {
+      font-size: 3rem;
+    }
   }
 
   .btn-clear {
