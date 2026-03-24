@@ -17,6 +17,9 @@ create table public.matches (
   balls integer not null default 0,
   strikes integer not null default 0,
   outs integer not null default 0,
+  base1 boolean not null default false,
+  base2 boolean not null default false,
+  base3 boolean not null default false,
   is_active boolean not null default true,
   created_at timestamptz not null default now()
 );
@@ -62,3 +65,9 @@ as $$
     and is_active = true
   limit 1;
 $$;
+
+-- Add base runner columns (migration for existing databases)
+alter table public.matches
+  add column if not exists base1 boolean not null default false,
+  add column if not exists base2 boolean not null default false,
+  add column if not exists base3 boolean not null default false;

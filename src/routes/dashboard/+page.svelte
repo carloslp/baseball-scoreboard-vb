@@ -151,6 +151,16 @@
     await updateMatch({ inning: newInning })
   }
 
+  async function toggleBase(baseNum) {
+    if (!match) return
+    const field = `base${baseNum}`
+    await updateMatch({ [field]: !match[field] })
+  }
+
+  async function clearBases() {
+    await updateMatch({ base1: false, base2: false, base3: false })
+  }
+
   function onTeamNameChange(field, value) {
     if (match) match[field] = value
     clearTimeout(nameDebounceTimer)
@@ -305,6 +315,61 @@
               <button class="btn-icon" on:click={() => adjustInning(1)}>▲</button>
             </div>
             <div class="inning-label">{match.inning_half === 'top' ? 'TOP' : 'BOTTOM'} of {match.inning}</div>
+
+            <div class="bases-divider"></div>
+            <h2>Bases</h2>
+            <div class="bases-container">
+              <svg class="diamond-svg" viewBox="-8 -8 116 116" width="120" height="120" role="img" aria-label="Baseball diamond">
+                <!-- diamond outline -->
+                <polygon points="50,2 98,50 50,98 2,50" fill="none" stroke="rgba(255,255,255,0.12)" stroke-width="1.5"/>
+                <!-- home plate (decorative) -->
+                <polygon points="50,87 57,94 50,101 43,94" fill="rgba(255,255,255,0.25)"/>
+                <!-- 2nd base (top) -->
+                <polygon
+                  points="50,-6 57,2 50,10 43,2"
+                  fill={match.base2 ? '#f0c040' : 'rgba(255,255,255,0.07)'}
+                  stroke={match.base2 ? '#f0c040' : 'rgba(255,255,255,0.35)'}
+                  stroke-width="2"
+                  class="base-btn"
+                  on:click={() => toggleBase(2)}
+                  role="button"
+                  tabindex="0"
+                  aria-label="2nd base"
+                  on:keydown={(e) => e.key === 'Enter' && toggleBase(2)}
+                />
+                <!-- 1st base (right) -->
+                <polygon
+                  points="88,50 98,42 106,50 98,58"
+                  fill={match.base1 ? '#f0c040' : 'rgba(255,255,255,0.07)'}
+                  stroke={match.base1 ? '#f0c040' : 'rgba(255,255,255,0.35)'}
+                  stroke-width="2"
+                  class="base-btn"
+                  on:click={() => toggleBase(1)}
+                  role="button"
+                  tabindex="0"
+                  aria-label="1st base"
+                  on:keydown={(e) => e.key === 'Enter' && toggleBase(1)}
+                />
+                <!-- 3rd base (left) -->
+                <polygon
+                  points="-6,50 2,42 10,50 2,58"
+                  fill={match.base3 ? '#f0c040' : 'rgba(255,255,255,0.07)'}
+                  stroke={match.base3 ? '#f0c040' : 'rgba(255,255,255,0.35)'}
+                  stroke-width="2"
+                  class="base-btn"
+                  on:click={() => toggleBase(3)}
+                  role="button"
+                  tabindex="0"
+                  aria-label="3rd base"
+                  on:keydown={(e) => e.key === 'Enter' && toggleBase(3)}
+                />
+                <!-- base labels -->
+                <text x="50" y="-10" font-size="9" fill="rgba(255,255,255,0.4)" text-anchor="middle" font-family="sans-serif">2B</text>
+                <text x="110" y="53" font-size="9" fill="rgba(255,255,255,0.4)" text-anchor="start" font-family="sans-serif">1B</text>
+                <text x="-10" y="53" font-size="9" fill="rgba(255,255,255,0.4)" text-anchor="end" font-family="sans-serif">3B</text>
+              </svg>
+            </div>
+            <button class="btn-clear" on:click={clearBases}>Clear Bases</button>
           </section>
 
           <section class="card count-card">
@@ -762,6 +827,31 @@
     color: #8b8fa8;
     font-weight: 600;
     letter-spacing: 0.05em;
+  }
+
+  .bases-divider {
+    height: 1px;
+    background: rgba(255,255,255,0.07);
+    margin: 1rem 0;
+  }
+
+  .bases-container {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 0.75rem;
+  }
+
+  .diamond-svg {
+    overflow: visible;
+  }
+
+  .base-btn {
+    cursor: pointer;
+    transition: filter 0.15s;
+  }
+
+  .base-btn:hover {
+    filter: brightness(1.3);
   }
 
   .count-card {
