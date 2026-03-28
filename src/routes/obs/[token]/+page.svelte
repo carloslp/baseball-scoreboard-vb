@@ -179,7 +179,6 @@
     border: 1px solid rgba(255,255,255,0.12);
     border-radius: 8px;
     overflow: hidden;
-    backdrop-filter: blur(10px);
     box-shadow: 0 4px 24px rgba(0,0,0,0.5);
     min-width: 280px;
   }
