@@ -20,6 +20,8 @@ create table public.matches (
   base1 boolean not null default false,
   base2 boolean not null default false,
   base3 boolean not null default false,
+  obs_show_diamond boolean not null default true,
+  obs_show_count boolean not null default true,
   is_active boolean not null default true,
   created_at timestamptz not null default now()
 );
@@ -71,3 +73,8 @@ alter table public.matches
   add column if not exists base1 boolean not null default false,
   add column if not exists base2 boolean not null default false,
   add column if not exists base3 boolean not null default false;
+
+-- Add OBS visibility toggle columns (migration for existing databases)
+alter table public.matches
+  add column if not exists obs_show_diamond boolean not null default true,
+  add column if not exists obs_show_count boolean not null default true;
