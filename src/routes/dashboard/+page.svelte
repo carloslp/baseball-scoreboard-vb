@@ -395,6 +395,30 @@
           </section>
 
         </div>
+
+        <section class="card obs-settings-card">
+          <h2>OBS View Options</h2>
+          <div class="obs-toggles">
+            <label class="obs-toggle">
+              <input
+                type="checkbox"
+                checked={match.obs_show_count}
+                on:change={(e) => updateMatch({ obs_show_count: e.target.checked })}
+              />
+              <span class="toggle-label">Show innings, outs, strikes &amp; balls</span>
+            </label>
+            <label class="obs-toggle">
+              <input
+                type="checkbox"
+                checked={match.obs_show_diamond}
+                on:change={(e) => updateMatch({ obs_show_diamond: e.target.checked })}
+              />
+              <span class="toggle-label">Show diamond (base runners)</span>
+            </label>
+          </div>
+          <p class="obs-note">The score is always visible. Changes apply instantly to the OBS overlay.</p>
+        </section>
+
       {:else}
         <div class="no-match">
           <div class="no-match-icon">⚾</div>
@@ -1128,5 +1152,44 @@
 
   .btn-new-large:disabled {
     opacity: 0.6;
+  }
+
+  .obs-settings-card {
+    grid-column: 1 / -1;
+  }
+
+  .obs-toggles {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .obs-toggle {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .obs-toggle input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: #1a73e8;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+
+  .toggle-label {
+    font-size: 0.9rem;
+    color: #e8eaf6;
+    font-weight: 500;
+  }
+
+  .obs-note {
+    font-size: 0.78rem;
+    color: #8b8fa8;
+    margin-top: 0.25rem;
   }
 </style>

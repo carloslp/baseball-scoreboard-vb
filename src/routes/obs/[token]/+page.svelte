@@ -99,6 +99,7 @@
         </div>
       </div>
 
+      {#if match.obs_show_count !== false}
       <div class="game-info">
         <div class="inning-info">
           <span class="half-arrow">{match.inning_half === 'top' ? '▲' : '▼'}</span>
@@ -127,6 +128,9 @@
         </div>
       </div>
 
+      {/if}
+
+      {#if match.obs_show_diamond !== false}
       <div class="bases-col">
         <svg class="bases-svg" viewBox="-6 -6 112 112" role="img" aria-label="Baseball diamond">
           <polygon points="50,2 98,50 50,98 2,50" fill="none" stroke="rgba(255,255,255,0.18)" stroke-width="1.5"/>
@@ -145,6 +149,7 @@
             stroke-width="2"/>
         </svg>
       </div>
+      {/if}
     </div>
   {/if}
 </div>
