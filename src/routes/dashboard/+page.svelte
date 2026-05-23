@@ -468,7 +468,14 @@
 </div>
 
 <style>
+  /* ── Z-index scale ────────────────────────────────────────────────── */
+  /* --z-fixed-bar: 200  — always on top of scrollable content          */
+
+  /* ── Layout tokens ───────────────────────────────────────────────── */
+  /* --quick-action-bar-height: 112px  (button 88px + padding 24px)    */
+  /* Responsive overrides are applied inside the media queries below.   */
   .dashboard {
+    --quick-action-bar-height: 112px;
     min-height: 100vh;
     display: flex;
     flex-direction: column;
@@ -529,7 +536,7 @@
   main {
     flex: 1;
     padding: 1.5rem;
-    padding-bottom: calc(1.5rem + 130px + env(safe-area-inset-bottom, 0px));
+    padding-bottom: calc(1.5rem + var(--quick-action-bar-height) + env(safe-area-inset-bottom, 0px));
     max-width: 1200px;
     margin: 0 auto;
     width: 100%;
@@ -1243,7 +1250,7 @@
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
     border-top: 1px solid rgba(255,255,255,0.1);
-    z-index: 200;
+    z-index: 200; /* --z-fixed-bar */
   }
 
   .action-btn {
@@ -1350,6 +1357,7 @@
 
   /* Larger targets on tablets (iPad landscape / portrait) */
   @media (min-width: 769px) {
+    .dashboard { --quick-action-bar-height: 128px; } /* button 100px + padding 28px */
     .quick-action-bar {
       gap: 16px;
       padding: 14px 24px;
@@ -1369,6 +1377,7 @@
 
   /* Extra large on big-screen landscape (1025px+) */
   @media (min-width: 1025px) {
+    .dashboard { --quick-action-bar-height: 142px; } /* button 110px + padding 32px */
     .quick-action-bar {
       padding: 16px 32px;
       padding-bottom: max(16px, env(safe-area-inset-bottom, 16px));
