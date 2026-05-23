@@ -110,18 +110,18 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(135deg, #0f1117 0%, #1a1f2e 100%);
+    background: #000000;
     padding: 1rem;
   }
 
   .card {
-    background: #1e2330;
-    border: 1px solid rgba(255,255,255,0.08);
+    background: #111111;
+    border: 1px solid rgba(255,255,255,0.15);
     border-radius: 16px;
     padding: 2.5rem;
     width: 100%;
     max-width: 420px;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.6);
   }
 
   .logo {
@@ -133,14 +133,14 @@
   h1 {
     text-align: center;
     font-size: 1.5rem;
-    font-weight: 700;
-    color: #fff;
+    font-weight: 800;
+    color: #ffffff;
     margin-bottom: 0.25rem;
   }
 
   .subtitle {
     text-align: center;
-    color: #8b8fa8;
+    color: #aaaaaa;
     font-size: 0.9rem;
     margin-bottom: 2rem;
   }
@@ -159,27 +159,27 @@
 
   label {
     font-size: 0.85rem;
-    color: #a0a4b8;
-    font-weight: 500;
+    color: #cccccc;
+    font-weight: 600;
   }
 
   input {
-    background: #252b3b;
-    border: 1px solid rgba(255,255,255,0.1);
+    background: #1a1a1a;
+    border: 1px solid rgba(255,255,255,0.2);
     border-radius: 8px;
     padding: 0.75rem 1rem;
-    color: #e8eaf6;
+    color: #ffffff;
     font-size: 1rem;
     outline: none;
     transition: border-color 0.2s;
   }
 
   input:focus {
-    border-color: #1a73e8;
+    border-color: #FFE600;
   }
 
   input::placeholder {
-    color: #4a5068;
+    color: #555555;
   }
 
   input:disabled {
