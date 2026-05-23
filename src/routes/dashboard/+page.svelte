@@ -104,7 +104,8 @@
   async function addBall() {
     if (!match) return
     if (match.balls >= 3) {
-      await updateMatch({ balls: 0 })
+      // 4th ball = walk: reset count
+      await updateMatch({ balls: 0, strikes: 0 })
     } else {
       await updateMatch({ balls: match.balls + 1 })
     }
@@ -113,7 +114,8 @@
   async function addStrike() {
     if (!match) return
     if (match.strikes >= 2) {
-      await updateMatch({ strikes: 0, balls: 0 })
+      // 3rd strike = strikeout: add an out (resets count and advances inning if needed)
+      await addOut()
     } else {
       await updateMatch({ strikes: match.strikes + 1 })
     }
