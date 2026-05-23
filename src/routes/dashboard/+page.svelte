@@ -267,7 +267,7 @@
                 </div>
                 <button class="btn-icon" on:click={() => adjustInning(1)}>▲</button>
               </div>
-              <div class="inning-label">{match.inning_half === 'top' ? 'TOP' : 'BOTTOM'} · INNING</div>
+              <div class="inning-label">{match.inning_half === 'top' ? 'TOP' : 'BOTTOM'} of {match.inning}</div>
 
               <div class="bases-buttons">
                 <div class="bases-row-top">
