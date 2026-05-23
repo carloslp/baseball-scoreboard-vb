@@ -104,7 +104,8 @@
   async function addBall() {
     if (!match) return
     if (match.balls >= 3) {
-      await updateMatch({ balls: 0 })
+      // 4th ball = walk: reset count
+      await updateMatch({ balls: 0, strikes: 0 })
     } else {
       await updateMatch({ balls: match.balls + 1 })
     }
@@ -113,7 +114,8 @@
   async function addStrike() {
     if (!match) return
     if (match.strikes >= 2) {
-      await updateMatch({ strikes: 0, balls: 0 })
+      // 3rd strike = strikeout: add an out (resets count and advances inning if needed)
+      await addOut()
     } else {
       await updateMatch({ strikes: match.strikes + 1 })
     }
@@ -425,6 +427,41 @@
 
         </div>
 
+        <!-- Fixed quick-action bar: large thumb-friendly buttons pinned to the bottom -->
+        <div class="quick-action-bar">
+          <button class="action-btn balls" on:click={addBall} aria-label="+1 Bola">
+            <span class="action-label">+1 Bola</span>
+            <span class="action-count">{match.balls} / 4</span>
+          </button>
+          <button class="action-btn strikes" on:click={addStrike} aria-label="+1 Strike">
+            <span class="action-label">+1 Strike</span>
+            <span class="action-count">{match.strikes} / 3</span>
+          </button>
+          <button class="action-btn outs" on:click={addOut} aria-label="+1 Out">
+            <span class="action-label">+1 Out</span>
+            <span class="action-count">{match.outs} / 3</span>
+          </button>
+          <div class="action-sep" role="separator"></div>
+          <button
+            class="action-btn score-team"
+            on:click={() => adjustScore('away', 1)}
+            style="--team-color: {match.away_team_color}"
+            aria-label="+1 Carrera {match.away_team_name}"
+          >
+            <span class="action-label">+1 Carrera</span>
+            <span class="action-team">{match.away_team_name}</span>
+          </button>
+          <button
+            class="action-btn score-team"
+            on:click={() => adjustScore('home', 1)}
+            style="--team-color: {match.home_team_color}"
+            aria-label="+1 Carrera {match.home_team_name}"
+          >
+            <span class="action-label">+1 Carrera</span>
+            <span class="action-team">{match.home_team_name}</span>
+          </button>
+        </div>
+
       {:else}
         <div class="no-match">
           <div class="no-match-icon">⚾</div>
@@ -439,16 +476,23 @@
 </div>
 
 <style>
+  /* ── Z-index scale ────────────────────────────────────────────────── */
+  /* --z-fixed-bar: 200  — always on top of scrollable content          */
+
+  /* ── Layout tokens ───────────────────────────────────────────────── */
+  /* --quick-action-bar-height: 112px  (button 88px + padding 24px)    */
+  /* Responsive overrides are applied inside the media queries below.   */
   .dashboard {
+    --quick-action-bar-height: 112px;
     min-height: 100vh;
     display: flex;
     flex-direction: column;
-    background: #0f1117;
+    background: #000000;
   }
 
   header {
-    background: #1e2330;
-    border-bottom: 1px solid rgba(255,255,255,0.08);
+    background: #111111;
+    border-bottom: 1px solid rgba(255,255,255,0.15);
     padding: 0.75rem 1.5rem;
     display: flex;
     align-items: center;
@@ -468,8 +512,8 @@
 
   h1 {
     font-size: 1.25rem;
-    font-weight: 700;
-    color: #fff;
+    font-weight: 800;
+    color: #ffffff;
   }
 
   .header-right {
@@ -479,7 +523,7 @@
   }
 
   .user-email {
-    color: #8b8fa8;
+    color: #aaaaaa;
     font-size: 0.85rem;
   }
 
@@ -500,6 +544,7 @@
   main {
     flex: 1;
     padding: 1.5rem;
+    padding-bottom: calc(1.5rem + var(--quick-action-bar-height) + env(safe-area-inset-bottom, 0px));
     max-width: 1200px;
     margin: 0 auto;
     width: 100%;
@@ -568,8 +613,8 @@
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    background: #1e2330;
-    border: 1px solid rgba(255,255,255,0.08);
+    background: #111111;
+    border: 1px solid rgba(255,255,255,0.15);
     border-radius: 8px;
     padding: 0.5rem 0.875rem;
     flex: 1;
@@ -578,7 +623,7 @@
   }
 
   .obs-label {
-    color: #8b8fa8;
+    color: #aaaaaa;
     font-size: 0.8rem;
     white-space: nowrap;
     font-weight: 600;
@@ -782,18 +827,18 @@
   }
 
   .card {
-    background: #1e2330;
-    border: 1px solid rgba(255,255,255,0.08);
+    background: #111111;
+    border: 1px solid rgba(255,255,255,0.15);
     border-radius: 12px;
     padding: 1.5rem;
   }
 
   .card h2 {
     font-size: 0.8rem;
-    font-weight: 700;
+    font-weight: 800;
     text-transform: uppercase;
     letter-spacing: 0.1em;
-    color: #8b8fa8;
+    color: #aaaaaa;
     margin-bottom: 1.25rem;
   }
 
@@ -815,13 +860,13 @@
   }
 
   .team-name-input {
-    background: rgba(255,255,255,0.05);
-    border: 1px solid rgba(255,255,255,0.1);
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.2);
     border-radius: 6px;
     padding: 0.4rem 0.6rem;
-    color: var(--team-color, #fff);
+    color: var(--team-color, #ffffff);
     font-size: 0.95rem;
-    font-weight: 700;
+    font-weight: 800;
     text-transform: uppercase;
     width: 100%;
     outline: none;
@@ -829,7 +874,7 @@
   }
 
   .team-name-input:focus {
-    border-color: rgba(255,255,255,0.3);
+    border-color: rgba(255,255,255,0.5);
   }
 
   .score-control {
@@ -839,13 +884,13 @@
   }
 
   .score-btn {
-    width: 44px;
-    height: 44px;
+    width: 56px;
+    height: 56px;
     border-radius: 8px;
     border: 1px solid rgba(255,255,255,0.15);
     background: rgba(255,255,255,0.05);
     color: #fff;
-    font-size: 1.4rem;
+    font-size: 1.6rem;
     font-weight: 700;
     line-height: 1;
     display: flex;
@@ -865,7 +910,7 @@
   .score-display {
     font-size: 2.5rem;
     font-weight: 900;
-    color: #fff;
+    color: #FFE600;
     min-width: 3rem;
     text-align: center;
     font-variant-numeric: tabular-nums;
@@ -921,8 +966,8 @@
 
   .inning-label {
     font-size: 0.85rem;
-    color: #8b8fa8;
-    font-weight: 600;
+    color: #aaaaaa;
+    font-weight: 700;
     letter-spacing: 0.05em;
   }
 
@@ -982,7 +1027,7 @@
   .base-btn-ui.base1.occupied {
     background: #4ade80;
     border-color: #4ade80;
-    color: #0f1117;
+    color: #000000;
   }
   .base-btn-ui.base1.occupied:hover {
     background: #22c55e;
@@ -1003,7 +1048,7 @@
   .base-btn-ui.base2.occupied {
     background: #f0c040;
     border-color: #f0c040;
-    color: #0f1117;
+    color: #000000;
   }
   .base-btn-ui.base2.occupied:hover {
     background: #d4a900;
@@ -1024,7 +1069,7 @@
   .base-btn-ui.base3.occupied {
     background: #63b3ed;
     border-color: #63b3ed;
-    color: #0f1117;
+    color: #000000;
   }
   .base-btn-ui.base3.occupied:hover {
     background: #3b9de0;
@@ -1047,30 +1092,30 @@
 
   .count-label {
     font-size: 0.7rem;
-    font-weight: 700;
+    font-weight: 800;
     text-transform: uppercase;
     letter-spacing: 0.08em;
-    color: #8b8fa8;
+    color: #aaaaaa;
   }
 
   .count-btn {
     background: rgba(255,255,255,0.05);
-    border: 1px solid rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.15);
     border-radius: 10px;
-    padding: 0.75rem 0.5rem;
+    padding: 1rem 0.5rem;
     width: 100%;
-    min-height: 80px;
+    min-height: 100px;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 0.5rem;
+    gap: 0.6rem;
     transition: background 0.15s, border-color 0.15s;
   }
 
   .count-btn:hover {
-    background: rgba(255,255,255,0.09);
-    border-color: rgba(255,255,255,0.2);
+    background: rgba(255,255,255,0.1);
+    border-color: rgba(255,255,255,0.3);
   }
 
   .count-btn:active {
@@ -1100,7 +1145,7 @@
   .count-number {
     font-size: 1.75rem;
     font-weight: 900;
-    color: #fff;
+    color: #FFE600;
     line-height: 1;
     font-variant-numeric: tabular-nums;
   }
@@ -1109,17 +1154,17 @@
     .score-btn,
     .btn-icon,
     .count-btn {
-      min-height: 52px;
+      min-height: 64px;
     }
 
     .score-btn {
-      width: 52px;
-      height: 52px;
+      width: 64px;
+      height: 64px;
     }
 
     .btn-icon {
-      width: 52px;
-      height: 52px;
+      width: 64px;
+      height: 64px;
     }
 
     .base-btn-ui {
@@ -1147,20 +1192,20 @@
 
   .btn-clear {
     width: 100%;
-    background: rgba(255,255,255,0.05);
-    border: 1px solid rgba(255,255,255,0.1);
-    color: #8b8fa8;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.15);
+    color: #aaaaaa;
     border-radius: 8px;
     padding: 0.6rem;
     font-size: 0.85rem;
-    font-weight: 600;
+    font-weight: 700;
     min-height: 44px;
     transition: background 0.15s, color 0.15s;
   }
 
   .btn-clear:hover {
-    background: rgba(255,255,255,0.09);
-    color: #e8eaf6;
+    background: rgba(255,255,255,0.12);
+    color: #ffffff;
   }
 
   .no-match {
@@ -1179,7 +1224,7 @@
   }
 
   .no-match p {
-    color: #8b8fa8;
+    color: #aaaaaa;
     font-size: 1rem;
   }
 
@@ -1228,13 +1273,169 @@
 
   .toggle-label {
     font-size: 0.9rem;
-    color: #e8eaf6;
+    color: #ffffff;
     font-weight: 500;
   }
 
   .obs-note {
     font-size: 0.78rem;
-    color: #8b8fa8;
+    color: #aaaaaa;
     margin-top: 0.25rem;
+  }
+
+  /* ── Quick-action bar ─────────────────────────────────────────────── */
+  .quick-action-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    gap: 12px;
+    padding: 12px 16px;
+    padding-bottom: max(12px, env(safe-area-inset-bottom, 12px));
+    background: rgba(15, 17, 23, 0.97);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-top: 1px solid rgba(255,255,255,0.1);
+    z-index: 200; /* --z-fixed-bar */
+  }
+
+  .action-btn {
+    flex: 1;
+    min-height: 88px;
+    border-radius: 14px;
+    border: 2px solid rgba(255,255,255,0.12);
+    background: rgba(255,255,255,0.06);
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    cursor: pointer;
+    transition: background 0.15s, transform 0.1s;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    padding: 0.5rem;
+  }
+
+  .action-btn:hover {
+    background: rgba(255,255,255,0.1);
+  }
+
+  .action-btn:active {
+    transform: scale(0.96);
+  }
+
+  /* Ball button */
+  .action-btn.balls {
+    border-color: rgba(74, 222, 128, 0.45);
+    background: rgba(74, 222, 128, 0.08);
+  }
+  .action-btn.balls:hover {
+    background: rgba(74, 222, 128, 0.15);
+  }
+  .action-btn.balls .action-label { color: #4ade80; }
+
+  /* Strike button */
+  .action-btn.strikes {
+    border-color: rgba(251, 191, 36, 0.45);
+    background: rgba(251, 191, 36, 0.08);
+  }
+  .action-btn.strikes:hover {
+    background: rgba(251, 191, 36, 0.15);
+  }
+  .action-btn.strikes .action-label { color: #fbbf24; }
+
+  /* Out button */
+  .action-btn.outs {
+    border-color: rgba(248, 113, 113, 0.45);
+    background: rgba(248, 113, 113, 0.08);
+  }
+  .action-btn.outs:hover {
+    background: rgba(248, 113, 113, 0.15);
+  }
+  .action-btn.outs .action-label { color: #f87171; }
+
+  /* Score (team) buttons — color driven by CSS variable set inline */
+  .action-btn.score-team {
+    border-color: rgba(255,255,255,0.18);
+    background: rgba(255,255,255,0.06);
+  }
+  .action-btn.score-team:hover {
+    background: rgba(255,255,255,0.11);
+  }
+  .action-btn.score-team .action-label {
+    color: var(--team-color, #fff);
+  }
+
+  .action-label {
+    font-size: 0.88rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    line-height: 1;
+  }
+
+  .action-count {
+    font-size: 0.72rem;
+    color: rgba(255,255,255,0.5);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .action-team {
+    font-size: 0.72rem;
+    color: rgba(255,255,255,0.6);
+    text-transform: uppercase;
+    font-weight: 700;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .action-sep {
+    width: 1px;
+    background: rgba(255,255,255,0.12);
+    align-self: stretch;
+    margin: 8px 0;
+    flex-shrink: 0;
+  }
+
+  /* Larger targets on tablets (iPad landscape / portrait) */
+  @media (min-width: 769px) {
+    .dashboard { --quick-action-bar-height: 128px; } /* button 100px + padding 28px */
+    .quick-action-bar {
+      gap: 16px;
+      padding: 14px 24px;
+      padding-bottom: max(14px, env(safe-area-inset-bottom, 14px));
+    }
+    .action-btn {
+      min-height: 100px;
+    }
+    .action-label {
+      font-size: 1rem;
+    }
+    .action-count,
+    .action-team {
+      font-size: 0.8rem;
+    }
+  }
+
+  /* Extra large on big-screen landscape (1025px+) */
+  @media (min-width: 1025px) {
+    .dashboard { --quick-action-bar-height: 142px; } /* button 110px + padding 32px */
+    .quick-action-bar {
+      padding: 16px 32px;
+      padding-bottom: max(16px, env(safe-area-inset-bottom, 16px));
+      gap: 20px;
+    }
+    .action-btn {
+      min-height: 110px;
+      border-radius: 16px;
+    }
+    .action-label {
+      font-size: 1.05rem;
+    }
   }
 </style>
