@@ -285,128 +285,134 @@
       </div>
 
       {#if match}
-        <div class="scoreboard-grid">
+        <div class="match-layout">
 
-          <section class="card score-card">
-            <h2>Score</h2>
-            <div class="teams">
-              <div class="team" style="--team-color: {match.away_team_color}">
-                <div class="team-inputs">
-                  <input
-                    type="color"
-                    value={match.away_team_color}
-                    on:change={(e) => onColorChange('away_team_color', e.target.value)}
-                    class="color-picker"
-                    title="Away team color"
-                  />
-                  <input
-                    type="text"
-                    value={match.away_team_name}
-                    on:input={(e) => onTeamNameChange('away_team_name', e.target.value)}
-                    class="team-name-input"
-                    maxlength="20"
-                    placeholder="AWAY"
-                  />
-                </div>
-                <div class="score-control">
-                  <button class="score-btn minus" on:click={() => adjustScore('away', -1)} disabled={match.away_score <= 0}>−</button>
-                  <span class="score-display {flash.away_score ? 'flash' : ''}">{match.away_score}</span>
-                  <button class="score-btn plus" on:click={() => adjustScore('away', 1)}>+</button>
-                </div>
-              </div>
-
-              <div class="vs-divider">VS</div>
-
-              <div class="team" style="--team-color: {match.home_team_color}">
-                <div class="team-inputs">
-                  <input
-                    type="color"
-                    value={match.home_team_color}
-                    on:change={(e) => onColorChange('home_team_color', e.target.value)}
-                    class="color-picker"
-                    title="Home team color"
-                  />
-                  <input
-                    type="text"
-                    value={match.home_team_name}
-                    on:input={(e) => onTeamNameChange('home_team_name', e.target.value)}
-                    class="team-name-input"
-                    maxlength="20"
-                    placeholder="HOME"
-                  />
-                </div>
-                <div class="score-control">
-                  <button class="score-btn minus" on:click={() => adjustScore('home', -1)} disabled={match.home_score <= 0}>−</button>
-                  <span class="score-display {flash.home_score ? 'flash' : ''}">{match.home_score}</span>
-                  <button class="score-btn plus" on:click={() => adjustScore('home', 1)}>+</button>
-                </div>
-              </div>
+          <!-- Marcador Total (Carreras) + Inning actual: parte superior central con H1 -->
+          <div class="score-hero card">
+            <div class="hero-team hero-away" style="--team-color: {match.away_team_color}">
+              <span class="hero-role">Visitante</span>
+              <span class="hero-team-name">{match.away_team_name || 'AWAY'}</span>
+              <span class="hero-runs {flash.away_score ? 'flash' : ''}">{match.away_score}</span>
             </div>
-          </section>
 
-          <section class="card inning-card">
-            <div class="inning-bases-row">
-              <div class="inning-section">
-                <h2>Inning</h2>
-                <div class="inning-control">
-                  <button class="btn-icon" on:click={() => adjustInning(-1)} disabled={match.inning <= 1}>▼</button>
-                  <div class="inning-display">
-                    <div class="inning-half-indicator">
-                      <button
-                        class="half-btn {match.inning_half === 'top' ? 'active' : ''}"
-                        on:click={() => updateMatch({ inning_half: 'top' })}
-                        title="Top of inning"
-                      >▲</button>
-                      <button
-                        class="half-btn {match.inning_half === 'bottom' ? 'active' : ''}"
-                        on:click={() => updateMatch({ inning_half: 'bottom' })}
-                        title="Bottom of inning"
-                      >▼</button>
-                    </div>
-                    <span class="inning-number {flash.inning || flash.inning_half ? 'flash' : ''}">{match.inning}</span>
+            <div class="hero-center">
+              <div class="hero-inning-row">
+                <button class="btn-icon" on:click={() => adjustInning(-1)} disabled={match.inning <= 1}>▼</button>
+                <div class="hero-inning-display">
+                  <div class="inning-half-indicator">
+                    <button
+                      class="half-btn {match.inning_half === 'top' ? 'active' : ''}"
+                      on:click={() => updateMatch({ inning_half: 'top' })}
+                      title="Top of inning"
+                    >▲</button>
+                    <button
+                      class="half-btn {match.inning_half === 'bottom' ? 'active' : ''}"
+                      on:click={() => updateMatch({ inning_half: 'bottom' })}
+                      title="Bottom of inning"
+                    >▼</button>
                   </div>
-                  <button class="btn-icon" on:click={() => adjustInning(1)}>▲</button>
+                  <span class="hero-inning-number {flash.inning || flash.inning_half ? 'flash' : ''}">{match.inning}</span>
                 </div>
-                <div class="inning-label">{match.inning_half === 'top' ? 'TOP' : 'BOTTOM'} of {match.inning}</div>
+                <button class="btn-icon" on:click={() => adjustInning(1)}>▲</button>
               </div>
+              <div class="inning-label">{match.inning_half === 'top' ? 'TOP' : 'BOTTOM'} of {match.inning}</div>
 
-              <div class="bases-section">
-                <h2>Bases</h2>
-                <div class="bases-buttons">
-                  <div class="bases-row-top">
-                    <button
-                      class="base-btn-ui base2 {match.base2 ? 'occupied' : ''}"
-                      on:click={() => toggleBase(2)}
-                      aria-label="2nd base"
-                      title="2nd base"
-                    >2B</button>
-                  </div>
-                  <div class="bases-row-mid">
-                    <button
-                      class="base-btn-ui base3 {match.base3 ? 'occupied' : ''}"
-                      on:click={() => toggleBase(3)}
-                      aria-label="3rd base"
-                      title="3rd base"
-                    >3B</button>
-                    <div class="bases-gap"></div>
-                    <button
-                      class="base-btn-ui base1 {match.base1 ? 'occupied' : ''}"
-                      on:click={() => toggleBase(1)}
-                      aria-label="1st base"
-                      title="1st base"
-                    >1B</button>
-                  </div>
+              <div class="bases-buttons">
+                <div class="bases-row-top">
+                  <button
+                    class="base-btn-ui base2 {match.base2 ? 'occupied' : ''}"
+                    on:click={() => toggleBase(2)}
+                    aria-label="2nd base"
+                    title="2nd base"
+                  >2B</button>
                 </div>
-                <button class="btn-clear" on:click={clearBases}>Clear Bases</button>
+                <div class="bases-row-mid">
+                  <button
+                    class="base-btn-ui base3 {match.base3 ? 'occupied' : ''}"
+                    on:click={() => toggleBase(3)}
+                    aria-label="3rd base"
+                    title="3rd base"
+                  >3B</button>
+                  <div class="bases-gap"></div>
+                  <button
+                    class="base-btn-ui base1 {match.base1 ? 'occupied' : ''}"
+                    on:click={() => toggleBase(1)}
+                    aria-label="1st base"
+                    title="1st base"
+                  >1B</button>
+                </div>
               </div>
+              <button class="btn-clear" on:click={clearBases}>Clear Bases</button>
             </div>
-          </section>
 
-          <section class="card count-card">
-            <h2>Count</h2>
+            <div class="hero-team hero-home" style="--team-color: {match.home_team_color}">
+              <span class="hero-role">Local</span>
+              <span class="hero-team-name">{match.home_team_name || 'HOME'}</span>
+              <span class="hero-runs {flash.home_score ? 'flash' : ''}">{match.home_score}</span>
+            </div>
+          </div>
+
+          <!-- Dos secciones claras: Visitante (Izquierda) y Local (Derecha) -->
+          <div class="teams-split">
+            <section class="card team-panel away-panel" style="--team-color: {match.away_team_color}">
+              <h2>Visitante</h2>
+              <div class="team-inputs">
+                <input
+                  type="color"
+                  value={match.away_team_color}
+                  on:change={(e) => onColorChange('away_team_color', e.target.value)}
+                  class="color-picker"
+                  title="Away team color"
+                />
+                <input
+                  type="text"
+                  value={match.away_team_name}
+                  on:input={(e) => onTeamNameChange('away_team_name', e.target.value)}
+                  class="team-name-input"
+                  maxlength="20"
+                  placeholder="AWAY"
+                />
+              </div>
+              <div class="score-control">
+                <button class="score-btn minus" on:click={() => adjustScore('away', -1)} disabled={match.away_score <= 0}>−</button>
+                <span class="score-display {flash.away_score ? 'flash' : ''}">{match.away_score}</span>
+                <button class="score-btn plus" on:click={() => adjustScore('away', 1)}>+</button>
+              </div>
+            </section>
+
+            <section class="card team-panel home-panel" style="--team-color: {match.home_team_color}">
+              <h2>Local</h2>
+              <div class="team-inputs">
+                <input
+                  type="color"
+                  value={match.home_team_color}
+                  on:change={(e) => onColorChange('home_team_color', e.target.value)}
+                  class="color-picker"
+                  title="Home team color"
+                />
+                <input
+                  type="text"
+                  value={match.home_team_name}
+                  on:input={(e) => onTeamNameChange('home_team_name', e.target.value)}
+                  class="team-name-input"
+                  maxlength="20"
+                  placeholder="HOME"
+                />
+              </div>
+              <div class="score-control">
+                <button class="score-btn minus" on:click={() => adjustScore('home', -1)} disabled={match.home_score <= 0}>−</button>
+                <span class="score-display {flash.home_score ? 'flash' : ''}">{match.home_score}</span>
+                <button class="score-btn plus" on:click={() => adjustScore('home', 1)}>+</button>
+              </div>
+            </section>
+          </div>
+
+          <!-- Panel secundario: Conteo del Bateador (Bolas, Strikes, Outs) -->
+          <section class="card count-panel">
+            <h2>Conteo del Bateador</h2>
             <div class="count-grid">
               <div class="count-item">
-                <span class="count-label">Balls</span>
+                <span class="count-label">Bolas</span>
                 <button class="count-btn balls" on:click={addBall}>
                   <div class="pip-row">
                     {#each Array(4) as _, i}
@@ -442,30 +448,30 @@
             <button class="btn-clear" on:click={clearCount}>Clear Count</button>
           </section>
 
-        </div>
+          <section class="card obs-settings-card">
+            <h2>OBS View Options</h2>
+            <div class="obs-toggles">
+              <label class="obs-toggle">
+                <input
+                  type="checkbox"
+                  checked={match.obs_show_count}
+                  on:change={(e) => updateMatch({ obs_show_count: e.target.checked })}
+                />
+                <span class="toggle-label">Show innings, outs, strikes &amp; balls</span>
+              </label>
+              <label class="obs-toggle">
+                <input
+                  type="checkbox"
+                  checked={match.obs_show_diamond}
+                  on:change={(e) => updateMatch({ obs_show_diamond: e.target.checked })}
+                />
+                <span class="toggle-label">Show diamond (base runners)</span>
+              </label>
+            </div>
+            <p class="obs-note">The score is always visible. Changes apply instantly to the OBS overlay.</p>
+          </section>
 
-        <section class="card obs-settings-card">
-          <h2>OBS View Options</h2>
-          <div class="obs-toggles">
-            <label class="obs-toggle">
-              <input
-                type="checkbox"
-                checked={match.obs_show_count}
-                on:change={(e) => updateMatch({ obs_show_count: e.target.checked })}
-              />
-              <span class="toggle-label">Show innings, outs, strikes &amp; balls</span>
-            </label>
-            <label class="obs-toggle">
-              <input
-                type="checkbox"
-                checked={match.obs_show_diamond}
-                on:change={(e) => updateMatch({ obs_show_diamond: e.target.checked })}
-              />
-              <span class="toggle-label">Show diamond (base runners)</span>
-            </label>
-          </div>
-          <p class="obs-note">The score is always visible. Changes apply instantly to the OBS overlay.</p>
-        </section>
+        </div>
 
         <!-- Fixed quick-action bar: large thumb-friendly buttons pinned to the bottom -->
         <div class="quick-action-bar">
@@ -715,32 +721,155 @@
     background: rgba(26, 115, 232, 0.2);
   }
 
-  .scoreboard-grid {
-    display: grid;
-    grid-template-columns: 1fr auto 1fr;
+  /* ── Match layout container ─────────────────────────────── */
+  .match-layout {
+    display: flex;
+    flex-direction: column;
     gap: 1rem;
-    align-items: start;
   }
 
-  @media (max-width: 1024px) and (min-width: 769px) {
-    .scoreboard-grid {
-      grid-template-columns: 1fr 1fr;
-    }
-    .score-card {
-      grid-column: 1 / 3;
-    }
-    .inning-card {
-      grid-column: 1 / 2;
-    }
-    .count-card {
-      grid-column: 2 / 3;
-    }
+  /* ── Score Hero: Marcador Total + Inning (H1) ────────────── */
+  .score-hero {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+    padding: 2rem 2.5rem;
   }
 
-  @media (max-width: 768px) {
-    .scoreboard-grid {
+  .hero-team {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .hero-away {
+    align-items: flex-start;
+    border-left: 4px solid var(--team-color, rgba(255,255,255,0.1));
+    padding-left: 1.25rem;
+  }
+
+  .hero-home {
+    align-items: flex-end;
+    border-right: 4px solid var(--team-color, rgba(255,255,255,0.1));
+    padding-right: 1.25rem;
+  }
+
+  .hero-role {
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: #8b8fa8;
+  }
+
+  .hero-team-name {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--team-color, #fff);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    max-width: 12rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .hero-runs {
+    font-size: 5rem;
+    font-weight: 900;
+    color: var(--team-color, #fff);
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .hero-center {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    flex: 0 0 auto;
+  }
+
+  .hero-inning-row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .hero-inning-display {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .hero-inning-number {
+    font-size: 5rem;
+    font-weight: 900;
+    color: #fff;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+    min-width: 3.5rem;
+    text-align: center;
+  }
+
+  /* ── Teams Split: Visitante (Left) | Local (Right) ────────── */
+  .teams-split {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+
+  .team-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .away-panel {
+    border-top: 4px solid var(--team-color, rgba(255,255,255,0.1));
+  }
+
+  .home-panel {
+    border-top: 4px solid var(--team-color, rgba(255,255,255,0.1));
+  }
+
+  @media (max-width: 640px) {
+    .teams-split {
       grid-template-columns: 1fr;
     }
+
+    .score-hero {
+      flex-direction: column;
+      padding: 1.5rem;
+    }
+
+    .hero-away,
+    .hero-home {
+      width: 100%;
+      align-items: center;
+      border-left: none;
+      border-right: none;
+      border-top: 4px solid var(--team-color, rgba(255,255,255,0.1));
+      padding-left: 0;
+      padding-right: 0;
+      padding-top: 1rem;
+    }
+
+    .hero-runs {
+      font-size: 3.5rem;
+    }
+
+    .hero-inning-number {
+      font-size: 3.5rem;
+    }
+  }
+
+  /* ── Count Panel: Conteo del Bateador ─────────────────────── */
+  .count-panel {
+    background: #161b27;
+    border-color: rgba(255,255,255,0.12);
   }
 
   .card {
@@ -757,23 +886,6 @@
     letter-spacing: 0.1em;
     color: #aaaaaa;
     margin-bottom: 1.25rem;
-  }
-
-  .score-card {
-    grid-column: 1 / 2;
-  }
-
-  .teams {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-  }
-
-  .team {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
   }
 
   .team-inputs {
@@ -850,46 +962,6 @@
     font-variant-numeric: tabular-nums;
   }
 
-  .vs-divider {
-    color: #4a5068;
-    font-size: 0.75rem;
-    font-weight: 700;
-    padding: 0 0.25rem;
-  }
-
-  .inning-card {
-    text-align: center;
-  }
-
-  .inning-bases-row {
-    display: flex;
-    gap: 1.5rem;
-    align-items: flex-start;
-    justify-content: center;
-  }
-
-  .inning-section {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    flex: 0 0 auto;
-  }
-
-  .bases-section {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    flex: 0 0 auto;
-  }
-
-  .inning-control {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.75rem;
-    margin-bottom: 0.75rem;
-  }
-
   .btn-icon {
     width: 44px;
     height: 44px;
@@ -910,12 +982,6 @@
 
   .btn-icon:disabled {
     opacity: 0.3;
-  }
-
-  .inning-display {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
   }
 
   .inning-half-indicator {
@@ -942,17 +1008,6 @@
     background: rgba(26, 115, 232, 0.2);
     border-color: #1a73e8;
     color: #63b3ed;
-  }
-
-  .inning-number {
-    font-size: 3.5rem;
-    font-weight: 900;
-    color: #FFE600;
-    line-height: 1;
-    font-variant-numeric: tabular-nums;
-    min-width: 2.5rem;
-    display: inline-block;
-    text-align: center;
   }
 
   .inning-label {
@@ -1067,16 +1122,6 @@
     border-color: #3b9de0;
   }
 
-  .count-card {
-    grid-column: 3 / 4;
-  }
-
-  @media (max-width: 768px) {
-    .count-card {
-      grid-column: 1;
-    }
-  }
-
   .count-grid {
     display: flex;
     gap: 0.75rem;
@@ -1178,7 +1223,11 @@
       width: 64px;
     }
 
-    .inning-number {
+    .hero-inning-number {
+      font-size: 4rem;
+    }
+
+    .hero-runs {
       font-size: 4rem;
     }
 
@@ -1243,10 +1292,6 @@
 
   .btn-new-large:disabled {
     opacity: 0.6;
-  }
-
-  .obs-settings-card {
-    grid-column: 1 / -1;
   }
 
   .obs-toggles {
