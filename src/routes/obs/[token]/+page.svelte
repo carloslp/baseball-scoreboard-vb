@@ -168,19 +168,19 @@
     min-height: 100vh;
     padding: 20px;
     background: transparent;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   }
 
   .score-bug {
     display: flex;
     flex-direction: row;
     align-items: stretch;
-    background: rgba(10, 12, 20, 0.92);
-    border: 1px solid rgba(255,255,255,0.12);
+    background: rgba(0, 0, 0, 0.95);
+    border: 1px solid rgba(255,255,255,0.25);
     border-radius: 8px;
     overflow: hidden;
     backdrop-filter: blur(10px);
-    box-shadow: 0 4px 24px rgba(0,0,0,0.5);
+    box-shadow: 0 4px 24px rgba(0,0,0,0.7);
     min-width: 280px;
   }
 
@@ -206,17 +206,17 @@
 
   .team-name {
     font-size: 0.75rem;
-    font-weight: 800;
+    font-weight: 900;
     text-transform: uppercase;
     letter-spacing: 0.08em;
-    color: var(--color, #fff);
+    color: var(--color, #ffffff);
     min-width: 40px;
   }
 
   .team-score {
     font-size: 1.25rem;
     font-weight: 900;
-    color: #fff;
+    color: #FFE600;
     font-variant-numeric: tabular-nums;
     min-width: 1.5rem;
     text-align: right;
@@ -245,8 +245,8 @@
 
   .inning-text {
     font-size: 0.8rem;
-    font-weight: 800;
-    color: #fff;
+    font-weight: 900;
+    color: #ffffff;
     letter-spacing: 0.02em;
   }
 
@@ -264,18 +264,18 @@
 
   .count-val {
     font-size: 0.9rem;
-    font-weight: 800;
+    font-weight: 900;
     font-variant-numeric: tabular-nums;
   }
 
-  .count-val.balls { color: #4ade80; }
-  .count-val.strikes { color: #fbbf24; }
-  .count-val.outs { color: #f87171; }
+  .count-val.balls { color: #00FF7F; }
+  .count-val.strikes { color: #FFE600; }
+  .count-val.outs { color: #FF5555; }
 
   .count-lbl {
     font-size: 0.55rem;
-    font-weight: 700;
-    color: #6b7280;
+    font-weight: 800;
+    color: #aaaaaa;
     text-transform: uppercase;
   }
 
