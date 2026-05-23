@@ -437,12 +437,12 @@
     min-height: 100vh;
     display: flex;
     flex-direction: column;
-    background: #0f1117;
+    background: #000000;
   }
 
   header {
-    background: #1e2330;
-    border-bottom: 1px solid rgba(255,255,255,0.08);
+    background: #111111;
+    border-bottom: 1px solid rgba(255,255,255,0.15);
     padding: 0.75rem 1.5rem;
     display: flex;
     align-items: center;
@@ -462,8 +462,8 @@
 
   h1 {
     font-size: 1.25rem;
-    font-weight: 700;
-    color: #fff;
+    font-weight: 800;
+    color: #ffffff;
   }
 
   .header-right {
@@ -473,7 +473,7 @@
   }
 
   .user-email {
-    color: #8b8fa8;
+    color: #aaaaaa;
     font-size: 0.85rem;
   }
 
@@ -562,8 +562,8 @@
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    background: #1e2330;
-    border: 1px solid rgba(255,255,255,0.08);
+    background: #111111;
+    border: 1px solid rgba(255,255,255,0.15);
     border-radius: 8px;
     padding: 0.5rem 0.875rem;
     flex: 1;
@@ -572,7 +572,7 @@
   }
 
   .obs-label {
-    color: #8b8fa8;
+    color: #aaaaaa;
     font-size: 0.8rem;
     white-space: nowrap;
     font-weight: 600;
@@ -653,18 +653,18 @@
   }
 
   .card {
-    background: #1e2330;
-    border: 1px solid rgba(255,255,255,0.08);
+    background: #111111;
+    border: 1px solid rgba(255,255,255,0.15);
     border-radius: 12px;
     padding: 1.5rem;
   }
 
   .card h2 {
     font-size: 0.8rem;
-    font-weight: 700;
+    font-weight: 800;
     text-transform: uppercase;
     letter-spacing: 0.1em;
-    color: #8b8fa8;
+    color: #aaaaaa;
     margin-bottom: 1.25rem;
   }
 
@@ -703,13 +703,13 @@
   }
 
   .team-name-input {
-    background: rgba(255,255,255,0.05);
-    border: 1px solid rgba(255,255,255,0.1);
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.2);
     border-radius: 6px;
     padding: 0.4rem 0.6rem;
-    color: var(--team-color, #fff);
+    color: var(--team-color, #ffffff);
     font-size: 0.95rem;
-    font-weight: 700;
+    font-weight: 800;
     text-transform: uppercase;
     width: 100%;
     outline: none;
@@ -717,7 +717,7 @@
   }
 
   .team-name-input:focus {
-    border-color: rgba(255,255,255,0.3);
+    border-color: rgba(255,255,255,0.5);
   }
 
   .score-control {
@@ -753,7 +753,7 @@
   .score-display {
     font-size: 2.5rem;
     font-weight: 900;
-    color: #fff;
+    color: #FFE600;
     min-width: 3rem;
     text-align: center;
     font-variant-numeric: tabular-nums;
@@ -856,7 +856,7 @@
   .inning-number {
     font-size: 3.5rem;
     font-weight: 900;
-    color: #fff;
+    color: #FFE600;
     line-height: 1;
     font-variant-numeric: tabular-nums;
     min-width: 2.5rem;
@@ -866,8 +866,8 @@
 
   .inning-label {
     font-size: 0.85rem;
-    color: #8b8fa8;
-    font-weight: 600;
+    color: #aaaaaa;
+    font-weight: 700;
     letter-spacing: 0.05em;
   }
 
@@ -927,7 +927,7 @@
   .base-btn-ui.base1.occupied {
     background: #4ade80;
     border-color: #4ade80;
-    color: #0f1117;
+    color: #000000;
   }
   .base-btn-ui.base1.occupied:hover {
     background: #22c55e;
@@ -948,7 +948,7 @@
   .base-btn-ui.base2.occupied {
     background: #f0c040;
     border-color: #f0c040;
-    color: #0f1117;
+    color: #000000;
   }
   .base-btn-ui.base2.occupied:hover {
     background: #d4a900;
@@ -969,7 +969,7 @@
   .base-btn-ui.base3.occupied {
     background: #63b3ed;
     border-color: #63b3ed;
-    color: #0f1117;
+    color: #000000;
   }
   .base-btn-ui.base3.occupied:hover {
     background: #3b9de0;
@@ -1002,15 +1002,15 @@
 
   .count-label {
     font-size: 0.7rem;
-    font-weight: 700;
+    font-weight: 800;
     text-transform: uppercase;
     letter-spacing: 0.08em;
-    color: #8b8fa8;
+    color: #aaaaaa;
   }
 
   .count-btn {
     background: rgba(255,255,255,0.05);
-    border: 1px solid rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.15);
     border-radius: 10px;
     padding: 0.75rem 0.5rem;
     width: 100%;
@@ -1024,8 +1024,8 @@
   }
 
   .count-btn:hover {
-    background: rgba(255,255,255,0.09);
-    border-color: rgba(255,255,255,0.2);
+    background: rgba(255,255,255,0.1);
+    border-color: rgba(255,255,255,0.3);
   }
 
   .count-btn:active {
@@ -1055,7 +1055,7 @@
   .count-number {
     font-size: 1.75rem;
     font-weight: 900;
-    color: #fff;
+    color: #FFE600;
     line-height: 1;
     font-variant-numeric: tabular-nums;
   }
@@ -1098,20 +1098,20 @@
 
   .btn-clear {
     width: 100%;
-    background: rgba(255,255,255,0.05);
-    border: 1px solid rgba(255,255,255,0.1);
-    color: #8b8fa8;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.15);
+    color: #aaaaaa;
     border-radius: 8px;
     padding: 0.6rem;
     font-size: 0.85rem;
-    font-weight: 600;
+    font-weight: 700;
     min-height: 44px;
     transition: background 0.15s, color 0.15s;
   }
 
   .btn-clear:hover {
-    background: rgba(255,255,255,0.09);
-    color: #e8eaf6;
+    background: rgba(255,255,255,0.12);
+    color: #ffffff;
   }
 
   .no-match {
@@ -1130,7 +1130,7 @@
   }
 
   .no-match p {
-    color: #8b8fa8;
+    color: #aaaaaa;
     font-size: 1rem;
   }
 
@@ -1183,13 +1183,13 @@
 
   .toggle-label {
     font-size: 0.9rem;
-    color: #e8eaf6;
+    color: #ffffff;
     font-weight: 500;
   }
 
   .obs-note {
     font-size: 0.78rem;
-    color: #8b8fa8;
+    color: #aaaaaa;
     margin-top: 0.25rem;
   }
 </style>
