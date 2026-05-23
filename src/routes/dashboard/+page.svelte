@@ -13,6 +13,9 @@
   let obsUrlCopied = false
 
   let nameDebounceTimer = null
+  let previousMatch = null
+  let flash = {}
+  let flashTimer = null
 
   $: obsUrl = match ? `${typeof window !== 'undefined' ? window.location.origin : ''}/obs/${match.user_obs_token}` : ''
 
@@ -80,6 +83,7 @@
 
   async function updateMatch(updates) {
     if (!match) return
+    previousMatch = structuredClone(match)
     const { data, error: err } = await supabase
       .from('matches')
       .update(updates)
@@ -89,8 +93,46 @@
 
     if (err) {
       error = err.message
+      previousMatch = null
     } else {
       match = data
+      triggerFlash(Object.keys(updates))
+    }
+  }
+
+  function triggerFlash(fields) {
+    const newFlash = {}
+    for (const key of fields) {
+      newFlash[key] = true
+    }
+    flash = newFlash
+    clearTimeout(flashTimer)
+    flashTimer = setTimeout(() => { flash = {} }, 200)
+  }
+
+  // Fields that identify the record and must not be overwritten by undo.
+  // Any future non-state columns (created_at, updated_at, etc.) should be
+  // added here as well.
+  const UNDO_EXCLUDED_FIELDS = new Set(['id', 'user_id', 'user_obs_token', 'is_active'])
+
+  async function undo() {
+    if (!previousMatch || !match) return
+    const prevData = previousMatch
+    previousMatch = null
+    const stateFields = Object.fromEntries(
+      Object.entries(prevData).filter(([k]) => !UNDO_EXCLUDED_FIELDS.has(k))
+    )
+    const { data, error: err } = await supabase
+      .from('matches')
+      .update(stateFields)
+      .eq('id', match.id)
+      .select()
+      .single()
+    if (err) {
+      error = err.message
+    } else {
+      match = data
+      triggerFlash(Object.keys(stateFields))
     }
   }
 
@@ -195,6 +237,7 @@
 
   onDestroy(() => {
     clearTimeout(nameDebounceTimer)
+    clearTimeout(flashTimer)
   })
 </script>
 
@@ -227,6 +270,9 @@
           {saving ? '…' : '+ New Match'}
         </button>
         {#if match}
+          <button class="btn-undo" on:click={undo} disabled={!previousMatch} title="Undo last action">
+            ↩ Undo
+          </button>
           <div class="obs-row">
             <span class="obs-label">OBS URL:</span>
             <code class="obs-url">{obsUrl}</code>
@@ -264,7 +310,7 @@
                 </div>
                 <div class="score-control">
                   <button class="score-btn minus" on:click={() => adjustScore('away', -1)} disabled={match.away_score <= 0}>−</button>
-                  <span class="score-display">{match.away_score}</span>
+                  <span class="score-display {flash.away_score ? 'flash' : ''}">{match.away_score}</span>
                   <button class="score-btn plus" on:click={() => adjustScore('away', 1)}>+</button>
                 </div>
               </div>
@@ -291,7 +337,7 @@
                 </div>
                 <div class="score-control">
                   <button class="score-btn minus" on:click={() => adjustScore('home', -1)} disabled={match.home_score <= 0}>−</button>
-                  <span class="score-display">{match.home_score}</span>
+                  <span class="score-display {flash.home_score ? 'flash' : ''}">{match.home_score}</span>
                   <button class="score-btn plus" on:click={() => adjustScore('home', 1)}>+</button>
                 </div>
               </div>
@@ -317,7 +363,7 @@
                         title="Bottom of inning"
                       >▼</button>
                     </div>
-                    <span class="inning-number">{match.inning}</span>
+                    <span class="inning-number {flash.inning || flash.inning_half ? 'flash' : ''}">{match.inning}</span>
                   </div>
                   <button class="btn-icon" on:click={() => adjustInning(1)}>▲</button>
                 </div>
@@ -367,7 +413,7 @@
                       <span class="pip {i < match.balls ? 'on' : 'off'}"></span>
                     {/each}
                   </div>
-                  <span class="count-number">{match.balls}</span>
+                  <span class="count-number {flash.balls ? 'flash' : ''}">{match.balls}</span>
                 </button>
               </div>
               <div class="count-item">
@@ -378,7 +424,7 @@
                       <span class="pip {i < match.strikes ? 'on' : 'off'}"></span>
                     {/each}
                   </div>
-                  <span class="count-number">{match.strikes}</span>
+                  <span class="count-number {flash.strikes ? 'flash' : ''}">{match.strikes}</span>
                 </button>
               </div>
               <div class="count-item">
@@ -389,7 +435,7 @@
                       <span class="pip {i < match.outs ? 'on' : 'off'}"></span>
                     {/each}
                   </div>
-                  <span class="count-number">{match.outs}</span>
+                  <span class="count-number {flash.outs ? 'flash' : ''}">{match.outs}</span>
                 </button>
               </div>
             </div>
@@ -1236,6 +1282,37 @@
     font-size: 0.78rem;
     color: #aaaaaa;
     margin-top: 0.25rem;
+  }
+
+  .btn-undo {
+    background: rgba(251, 191, 36, 0.12);
+    border: 1px solid rgba(251, 191, 36, 0.35);
+    color: #fbbf24;
+    border-radius: 8px;
+    padding: 0.625rem 1.25rem;
+    font-size: 0.95rem;
+    font-weight: 600;
+    min-height: 44px;
+    transition: background 0.2s, opacity 0.2s;
+    white-space: nowrap;
+  }
+
+  .btn-undo:hover:not(:disabled) {
+    background: rgba(251, 191, 36, 0.25);
+  }
+
+  .btn-undo:disabled {
+    opacity: 0.35;
+    cursor: default;
+  }
+
+  @keyframes flash-update {
+    0%   { text-shadow: 0 0 10px rgba(255, 255, 255, 0.95), 0 0 24px rgba(255, 255, 255, 0.5); }
+    100% { text-shadow: none; }
+  }
+
+  .flash {
+    animation: flash-update 0.2s ease-out;
   }
 
   /* ── Quick-action bar ─────────────────────────────────────────────── */
