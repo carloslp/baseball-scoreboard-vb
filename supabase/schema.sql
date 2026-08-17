@@ -78,3 +78,7 @@ alter table public.matches
 alter table public.matches
   add column if not exists obs_show_diamond boolean not null default true,
   add column if not exists obs_show_count boolean not null default true;
+
+-- Add advertising banner URL column (migration for existing databases)
+alter table public.matches
+  add column if not exists banner_url text;

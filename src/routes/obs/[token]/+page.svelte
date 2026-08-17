@@ -86,6 +86,11 @@
 
 <div class="obs-container">
   {#if !loading && match}
+    {#if match.banner_url && match.banner_url.startsWith('https://')}
+      <div class="banner-corner">
+        <img src={match.banner_url} alt="Advertising banner" class="banner-img" width="450" height="100" />
+      </div>
+    {/if}
     <div class="score-bug">
       <div class="teams">
         <div class="team-row" style="--color: {match.away_team_color}">
@@ -163,12 +168,25 @@
 
   .obs-container {
     display: flex;
-    align-items: flex-end;
+    align-items: flex-start;
     justify-content: flex-end;
     min-height: 100vh;
     padding: 20px;
     background: transparent;
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  }
+
+  .banner-corner {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+  }
+
+  .banner-img {
+    width: 450px;
+    height: 100px;
+    object-fit: cover;
+    display: block;
   }
 
   .score-bug {

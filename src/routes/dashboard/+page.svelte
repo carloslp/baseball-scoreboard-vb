@@ -468,6 +468,30 @@
                 <span class="toggle-label">Show diamond (base runners)</span>
               </label>
             </div>
+            <div class="banner-url-row">
+              <label class="banner-url-label" for="banner-url-input">Advertising banner (450×100) — Image URL (https://)</label>
+              <div class="banner-url-input-row">
+                <input
+                  id="banner-url-input"
+                  type="url"
+                  value={match.banner_url || ''}
+                  placeholder="https://example.com/banner.png"
+                  class="banner-url-input"
+                  on:change={(e) => {
+                    const val = e.target.value.trim()
+                    if (val && !val.startsWith('https://')) {
+                      error = 'Banner URL must start with https://'
+                      return
+                    }
+                    updateMatch({ banner_url: val || null })
+                  }}
+                />
+                {#if match.banner_url}
+                  <button class="btn-clear-banner" on:click={() => updateMatch({ banner_url: null })} title="Remove banner">✕</button>
+                {/if}
+              </div>
+              <p class="obs-note banner-note">Shown in the top-left corner of the OBS overlay (450×100 px). Must be an https:// URL.</p>
+            </div>
             <p class="obs-note">The score is always visible. Changes apply instantly to the OBS overlay.</p>
           </section>
 
@@ -1327,6 +1351,63 @@
     font-size: 0.78rem;
     color: #aaaaaa;
     margin-top: 0.25rem;
+  }
+
+  .banner-url-row {
+    margin-top: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+  }
+
+  .banner-url-label {
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: #aaaaaa;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  .banner-url-input-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .banner-url-input {
+    flex: 1;
+    background: #1a1a2e;
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 6px;
+    color: #ffffff;
+    font-size: 0.85rem;
+    padding: 0.45rem 0.75rem;
+    min-height: 36px;
+  }
+
+  .banner-url-input:focus {
+    outline: none;
+    border-color: rgba(26, 115, 232, 0.6);
+  }
+
+  .btn-clear-banner {
+    background: rgba(229, 57, 53, 0.12);
+    border: 1px solid rgba(229, 57, 53, 0.3);
+    color: #ff6b6b;
+    border-radius: 6px;
+    padding: 0.3rem 0.6rem;
+    font-size: 0.8rem;
+    min-height: 36px;
+    transition: background 0.2s;
+    white-space: nowrap;
+  }
+
+  .btn-clear-banner:hover {
+    background: rgba(229, 57, 53, 0.25);
+  }
+
+  .banner-note {
+    margin-top: 0;
   }
 
   .btn-undo {
