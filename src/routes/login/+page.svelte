@@ -61,10 +61,12 @@
         <input
           id="email"
           type="email"
+          inputmode="email"
           bind:value={email}
           placeholder="you@example.com"
           required
           disabled={loading}
+          autocomplete="username"
         />
       </div>
 
@@ -78,6 +80,7 @@
           required
           disabled={loading}
           minlength="6"
+          autocomplete="current-password"
         />
       </div>
 
@@ -112,13 +115,14 @@
     justify-content: center;
     background: #000000;
     padding: 1rem;
+    padding-bottom: max(1rem, env(safe-area-inset-bottom, 1rem));
   }
 
   .card {
     background: #111111;
     border: 1px solid rgba(255,255,255,0.15);
     border-radius: 16px;
-    padding: 2.5rem;
+    padding: 2rem;
     width: 100%;
     max-width: 420px;
     box-shadow: 0 20px 60px rgba(0,0,0,0.6);
@@ -261,5 +265,41 @@
 
   @keyframes spin {
     to { transform: rotate(360deg); }
+  }
+
+  /* ── Small mobile screens ──────────────────────────── */
+  @media (max-width: 375px) {
+    .page {
+      padding: 0.75rem;
+      padding-bottom: max(0.75rem, env(safe-area-inset-bottom, 0.75rem));
+    }
+
+    .card {
+      padding: 1.5rem;
+      border-radius: 12px;
+    }
+
+    h1 {
+      font-size: 1.25rem;
+    }
+
+    .logo {
+      font-size: 2.5rem;
+    }
+
+    .subtitle {
+      font-size: 0.85rem;
+      margin-bottom: 1.5rem;
+    }
+
+    form {
+      gap: 0.875rem;
+    }
+
+    .btn-toggle {
+      font-size: 0.8rem;
+      margin-top: 1rem;
+      padding: 0.4rem;
+    }
   }
 </style>

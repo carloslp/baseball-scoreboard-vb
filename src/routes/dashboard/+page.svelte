@@ -474,6 +474,7 @@
                 <input
                   id="banner-url-input"
                   type="url"
+                  inputmode="url"
                   value={match.banner_url || ''}
                   placeholder="https://example.com/banner.png"
                   class="banner-url-input"
@@ -563,17 +564,19 @@
   header {
     background: #111111;
     border-bottom: 1px solid rgba(255,255,255,0.15);
-    padding: 0.75rem 1.5rem;
+    padding: 0.75rem 1rem;
     display: flex;
     align-items: center;
     justify-content: space-between;
     flex-shrink: 0;
+    gap: 0.5rem;
   }
 
   .header-left {
     display: flex;
     align-items: center;
     gap: 0.5rem;
+    flex-shrink: 0;
   }
 
   .logo {
@@ -589,12 +592,18 @@
   .header-right {
     display: flex;
     align-items: center;
-    gap: 1rem;
+    gap: 0.5rem;
+    flex-shrink: 0;
+    overflow: hidden;
   }
 
   .user-email {
     color: #aaaaaa;
     font-size: 0.85rem;
+    max-width: 80px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   .btn-logout {
@@ -602,9 +611,13 @@
     border: 1px solid rgba(229, 57, 53, 0.3);
     color: #ff6b6b;
     border-radius: 6px;
-    padding: 0.4rem 0.875rem;
-    font-size: 0.85rem;
+    padding: 0.4rem 0.75rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    min-height: 44px;
     transition: background 0.2s;
+    white-space: nowrap;
+    flex-shrink: 0;
   }
 
   .btn-logout:hover {
@@ -859,7 +872,7 @@
     border-top: 4px solid var(--team-color, rgba(255,255,255,0.1));
   }
 
-  @media (max-width: 640px) {
+  @media (max-width: 768px) {
     .teams-split {
       grid-template-columns: 1fr;
     }
@@ -887,6 +900,171 @@
 
     .hero-inning-number {
       font-size: 3.5rem;
+    }
+  }
+
+  /* ── Small iPhones (SE, 12/13 mini) ──────────────────────── */
+  @media (max-width: 375px) {
+    .hero-runs {
+      font-size: 2.75rem;
+    }
+
+    .hero-inning-number {
+      font-size: 2.75rem;
+    }
+
+    .score-display {
+      font-size: 2rem;
+    }
+
+    .score-btn {
+      width: 48px;
+      height: 48px;
+      font-size: 1.3rem;
+    }
+
+    .btn-icon {
+      width: 40px;
+      height: 40px;
+    }
+
+    .base-btn-ui {
+      width: 48px;
+      height: 48px;
+      font-size: 0.75rem;
+    }
+
+    .bases-gap {
+      width: 48px;
+    }
+
+    main {
+      padding: 1rem;
+      padding-bottom: calc(1rem + var(--quick-action-bar-height) + env(safe-area-inset-bottom, 0px));
+    }
+
+    .card {
+      padding: 1rem;
+    }
+
+    .quick-action-bar {
+      gap: 8px;
+      padding: 8px 12px;
+      padding-bottom: max(8px, env(safe-area-inset-bottom, 8px));
+    }
+
+    .action-btn {
+      min-height: 72px;
+      border-radius: 10px;
+    }
+
+    .action-label {
+      font-size: 0.8rem;
+    }
+
+    .action-count,
+    .action-team {
+      font-size: 0.65rem;
+    }
+  }
+
+  /* ── Landscape orientation handling ──────────────────────── */
+  @media (max-height: 500px) and (orientation: landscape) {
+    .score-hero {
+      flex-direction: row;
+      padding: 0.75rem 1rem;
+      gap: 1rem;
+    }
+
+    .hero-runs {
+      font-size: 2.5rem;
+    }
+
+    .hero-inning-number {
+      font-size: 2.5rem;
+    }
+
+    .hero-team-name {
+      font-size: 0.9rem;
+    }
+
+    .hero-role {
+      font-size: 0.6rem;
+    }
+
+    .hero-center {
+      gap: 0.25rem;
+    }
+
+    .bases-buttons {
+      display: none;
+    }
+
+    .hero-inning-row {
+      gap: 0.4rem;
+    }
+
+    .hero-inning-display {
+      gap: 0.25rem;
+    }
+
+    main {
+      padding: 0.75rem;
+      padding-bottom: calc(0.75rem + var(--quick-action-bar-height) + env(safe-area-inset-bottom, 0px));
+    }
+
+    .card {
+      padding: 0.75rem;
+    }
+
+    .card h2 {
+      font-size: 0.7rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .count-btn {
+      min-height: 72px;
+      padding: 0.5rem;
+    }
+
+    .count-number {
+      font-size: 1.4rem;
+    }
+
+    .score-control {
+      gap: 0.3rem;
+    }
+
+    .count-label {
+      font-size: 0.6rem;
+    }
+  }
+
+  /* ── iPad landscape / large phones landscape ─────────────── */
+  @media (min-width: 769px) and (max-height: 600px) and (orientation: landscape) {
+    main {
+      padding: 1rem;
+      padding-bottom: calc(1rem + var(--quick-action-bar-height) + env(safe-area-inset-bottom, 0px));
+    }
+
+    .score-hero {
+      padding: 1rem 1.5rem;
+    }
+
+    .hero-runs {
+      font-size: 3rem;
+    }
+
+    .hero-inning-number {
+      font-size: 3rem;
+    }
+
+    .count-btn {
+      min-height: 72px;
+    }
+
+    .card {
+      padding: 1rem;
     }
   }
 
@@ -919,10 +1097,10 @@
   }
 
   .color-picker {
-    width: 36px;
-    height: 36px;
+    width: 44px;
+    height: 44px;
     border: none;
-    border-radius: 6px;
+    border-radius: 8px;
     cursor: pointer;
     padding: 2px;
     background: rgba(255,255,255,0.1);
