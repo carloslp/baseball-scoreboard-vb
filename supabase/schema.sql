@@ -22,6 +22,8 @@ create table public.matches (
   base3 boolean not null default false,
   obs_show_diamond boolean not null default true,
   obs_show_count boolean not null default true,
+  at_bat_text text,
+  home_run_counter integer not null default 0,
   is_active boolean not null default true,
   created_at timestamptz not null default now()
 );
@@ -82,3 +84,8 @@ alter table public.matches
 -- Add advertising banner URL column (migration for existing databases)
 alter table public.matches
   add column if not exists banner_url text;
+
+-- Add at-bat text and home run trigger columns (migration for existing databases)
+alter table public.matches
+  add column if not exists at_bat_text text,
+  add column if not exists home_run_counter integer not null default 0;

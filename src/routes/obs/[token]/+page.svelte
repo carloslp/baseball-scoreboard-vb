@@ -9,6 +9,8 @@
   let match = null
   let loading = true
   let channel = null
+  let showHomeRunAnimation = false
+  let homeRunTimer = null
 
   $: token = $page.params.token
 
@@ -18,6 +20,7 @@
   })
 
   onDestroy(() => {
+    clearTimeout(homeRunTimer)
     if (channel) {
       supabase.removeChannel(channel)
     }
@@ -40,6 +43,14 @@
     loading = false
   }
 
+  function triggerHomeRunAnimation() {
+    showHomeRunAnimation = true
+    clearTimeout(homeRunTimer)
+    homeRunTimer = setTimeout(() => {
+      showHomeRunAnimation = false
+    }, 2800)
+  }
+
   function subscribeToRealtime() {
     channel = supabase
       .channel('obs-match-' + token)
@@ -54,7 +65,11 @@
         (payload) => {
           if (payload.eventType === 'UPDATE' || payload.eventType === 'INSERT') {
             if (payload.new.is_active) {
+              const prevCounter = match?.home_run_counter || 0
               match = payload.new
+              if ((payload.new.home_run_counter || 0) > prevCounter) {
+                triggerHomeRunAnimation()
+              }
             } else {
               match = null
             }
@@ -86,74 +101,83 @@
 
 <div class="obs-container">
   {#if !loading && match}
+    {#if showHomeRunAnimation}
+      <div class="home-run-overlay" role="status" aria-live="polite">
+        <span class="home-run-text">HOME RUN!</span>
+      </div>
+    {/if}
     {#if match.banner_url && match.banner_url.startsWith('https://')}
       <div class="banner-corner">
         <img src={match.banner_url} alt="Advertising banner" class="banner-img" width="450" height="100" />
       </div>
     {/if}
-    <div class="score-bug">
-      <div class="teams">
-        <div class="team-row" style="--color: {match.away_team_color}">
-          <span class="team-name">{match.away_team_name}</span>
-          <span class="team-score">{match.away_score}</span>
-        </div>
-        <div class="divider"></div>
-        <div class="team-row" style="--color: {match.home_team_color}">
-          <span class="team-name">{match.home_team_name}</span>
-          <span class="team-score">{match.home_score}</span>
-        </div>
-      </div>
-
-      {#if match.obs_show_count !== false}
-      <div class="game-info">
-        <div class="inning-info">
-          <span class="half-arrow">{match.inning_half === 'top' ? '▲' : '▼'}</span>
-          <span class="inning-text">{getOrdinal(match.inning)}</span>
-        </div>
-        <div class="count-info">
-          <div class="count-section">
-            <span class="count-val balls">{match.balls}</span>
-            <span class="count-lbl">B</span>
+    <div class="score-stack">
+      <div class="score-bug">
+        <div class="teams">
+          <div class="team-row" style="--color: {match.away_team_color}">
+            <span class="team-name">{match.away_team_name}</span>
+            <span class="team-score">{match.away_score}</span>
           </div>
-          <span class="count-sep">·</span>
-          <div class="count-section">
-            <span class="count-val strikes">{match.strikes}</span>
-            <span class="count-lbl">S</span>
-          </div>
-          <span class="count-sep">·</span>
-          <div class="count-section">
-            <span class="count-val outs">{match.outs}</span>
-            <span class="count-lbl">O</span>
+          <div class="divider"></div>
+          <div class="team-row" style="--color: {match.home_team_color}">
+            <span class="team-name">{match.home_team_name}</span>
+            <span class="team-score">{match.home_score}</span>
           </div>
         </div>
-        <div class="outs-pips">
-          {#each Array(3) as _, i}
-            <span class="out-pip {i < match.outs ? 'filled' : ''}"></span>
-          {/each}
+
+        {#if match.obs_show_count !== false}
+        <div class="game-info">
+          <div class="inning-info">
+            <span class="half-arrow">{match.inning_half === 'top' ? '▲' : '▼'}</span>
+            <span class="inning-text">{getOrdinal(match.inning)}</span>
+          </div>
+          <div class="count-info">
+            <div class="count-section">
+              <span class="count-val balls">{match.balls}</span>
+              <span class="count-lbl">B</span>
+            </div>
+            <span class="count-sep">·</span>
+            <div class="count-section">
+              <span class="count-val strikes">{match.strikes}</span>
+              <span class="count-lbl">S</span>
+            </div>
+            <span class="count-sep">·</span>
+            <div class="count-section">
+              <span class="count-val outs">{match.outs}</span>
+              <span class="count-lbl">O</span>
+            </div>
+          </div>
+          <div class="outs-pips">
+            {#each Array(3) as _, i}
+              <span class="out-pip {i < match.outs ? 'filled' : ''}"></span>
+            {/each}
+          </div>
         </div>
-      </div>
+        {/if}
 
-      {/if}
-
-      {#if match.obs_show_diamond !== false}
-      <div class="bases-col">
-        <svg class="bases-svg" viewBox="-6 -6 112 112" role="img" aria-label="Baseball diamond">
-          <polygon points="50,2 98,50 50,98 2,50" fill="none" stroke="rgba(255,255,255,0.18)" stroke-width="1.5"/>
-          <polygon points="50,88 56,94 50,100 44,94" fill="rgba(255,255,255,0.25)"/>
-          <polygon points="50,-4 56,2 50,8 44,2"
-            fill={match.base2 ? '#f0c040' : 'rgba(255,255,255,0.08)'}
-            stroke={match.base2 ? '#f0c040' : 'rgba(255,255,255,0.35)'}
-            stroke-width="2"/>
-          <polygon points="88,50 98,42 106,50 98,58"
-            fill={match.base1 ? '#f0c040' : 'rgba(255,255,255,0.08)'}
-            stroke={match.base1 ? '#f0c040' : 'rgba(255,255,255,0.35)'}
-            stroke-width="2"/>
-          <polygon points="-6,50 2,42 10,50 2,58"
-            fill={match.base3 ? '#f0c040' : 'rgba(255,255,255,0.08)'}
-            stroke={match.base3 ? '#f0c040' : 'rgba(255,255,255,0.35)'}
-            stroke-width="2"/>
-        </svg>
+        {#if match.obs_show_diamond !== false}
+        <div class="bases-col">
+          <svg class="bases-svg" viewBox="-6 -6 112 112" role="img" aria-label="Baseball diamond">
+            <polygon points="50,2 98,50 50,98 2,50" fill="none" stroke="rgba(255,255,255,0.18)" stroke-width="1.5"/>
+            <polygon points="50,88 56,94 50,100 44,94" fill="rgba(255,255,255,0.25)"/>
+            <polygon points="50,-4 56,2 50,8 44,2"
+              fill={match.base2 ? '#f0c040' : 'rgba(255,255,255,0.08)'}
+              stroke={match.base2 ? '#f0c040' : 'rgba(255,255,255,0.35)'}
+              stroke-width="2"/>
+            <polygon points="88,50 98,42 106,50 98,58"
+              fill={match.base1 ? '#f0c040' : 'rgba(255,255,255,0.08)'}
+              stroke={match.base1 ? '#f0c040' : 'rgba(255,255,255,0.35)'}
+              stroke-width="2"/>
+            <polygon points="-6,50 2,42 10,50 2,58"
+              fill={match.base3 ? '#f0c040' : 'rgba(255,255,255,0.08)'}
+              stroke={match.base3 ? '#f0c040' : 'rgba(255,255,255,0.35)'}
+              stroke-width="2"/>
+          </svg>
+        </div>
+        {/if}
       </div>
+      {#if match.at_bat_text}
+        <div class="at-bat-strip">Turno al bat: {match.at_bat_text}</div>
       {/if}
     </div>
   {/if}
@@ -174,6 +198,71 @@
     padding: 20px;
     background: transparent;
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  }
+
+  .score-stack {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 6px;
+  }
+
+  .at-bat-strip {
+    background: rgba(0, 0, 0, 0.95);
+    border: 1px solid rgba(255,255,255,0.25);
+    border-radius: 8px;
+    padding: 0.35rem 0.75rem;
+    color: #ffffff;
+    font-size: 0.75rem;
+    font-weight: 800;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    text-align: center;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .home-run-overlay {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 999;
+  }
+
+  .home-run-text {
+    font-size: clamp(2.2rem, 8vw, 6rem);
+    font-weight: 900;
+    letter-spacing: 0.12em;
+    color: #ffe600;
+    text-shadow:
+      0 0 14px rgba(255, 230, 0, 0.85),
+      0 0 28px rgba(255, 111, 97, 0.55),
+      0 0 44px rgba(255, 56, 56, 0.5);
+    animation: home-run-pop 2.8s ease-out forwards;
+  }
+
+  @keyframes home-run-pop {
+    0% {
+      transform: scale(0.65);
+      opacity: 0;
+    }
+    15% {
+      transform: scale(1.1);
+      opacity: 1;
+    }
+    70% {
+      transform: scale(1);
+      opacity: 1;
+    }
+    100% {
+      transform: scale(1.06);
+      opacity: 0;
+    }
   }
 
   .banner-corner {

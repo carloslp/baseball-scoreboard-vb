@@ -235,6 +235,21 @@
     goto('/login')
   }
 
+  async function saveAtBatText() {
+    if (!match) return
+    const value = (match.at_bat_text || '').trim()
+    await updateMatch({ at_bat_text: value || null })
+  }
+
+  async function clearAtBatText() {
+    await updateMatch({ at_bat_text: null })
+  }
+
+  async function triggerHomeRun() {
+    if (!match) return
+    await updateMatch({ home_run_counter: (match.home_run_counter || 0) + 1 })
+  }
+
   onDestroy(() => {
     clearTimeout(nameDebounceTimer)
     clearTimeout(flashTimer)
@@ -494,6 +509,23 @@
               <p class="obs-note banner-note">Shown in the top-left corner of the OBS overlay (450×100 px). Must be an https:// URL.</p>
             </div>
             <p class="obs-note">The score is always visible. Changes apply instantly to the OBS overlay.</p>
+          </section>
+
+          <section class="card at-bat-card">
+            <h2>Turno al bat</h2>
+            <div class="at-bat-row">
+              <input
+                type="text"
+                value={match.at_bat_text || ''}
+                placeholder="Ej: #12 Juan Pérez"
+                class="at-bat-input"
+                maxlength="60"
+                on:input={(e) => { match.at_bat_text = e.target.value }}
+              />
+              <button class="btn-at-bat-save" on:click={saveAtBatText}>Mostrar</button>
+              <button class="btn-clear-banner" on:click={clearAtBatText} disabled={!match.at_bat_text}>Limpiar</button>
+            </div>
+            <button class="btn-home-run" on:click={triggerHomeRun}>💥 Home Run</button>
           </section>
 
         </div>
@@ -1582,6 +1614,68 @@
 
   .btn-clear-banner:hover {
     background: rgba(229, 57, 53, 0.25);
+  }
+
+  .at-bat-card {
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+  }
+
+  .at-bat-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+
+  .at-bat-input {
+    flex: 1;
+    min-width: 220px;
+    background: #1a1a2e;
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 6px;
+    color: #ffffff;
+    font-size: 0.9rem;
+    padding: 0.5rem 0.75rem;
+    min-height: 40px;
+  }
+
+  .at-bat-input:focus {
+    outline: none;
+    border-color: rgba(26, 115, 232, 0.6);
+  }
+
+  .btn-at-bat-save {
+    background: rgba(26, 115, 232, 0.2);
+    border: 1px solid rgba(26, 115, 232, 0.45);
+    color: #63b3ed;
+    border-radius: 6px;
+    padding: 0.45rem 0.9rem;
+    min-height: 40px;
+    font-size: 0.85rem;
+    font-weight: 700;
+  }
+
+  .btn-at-bat-save:hover {
+    background: rgba(26, 115, 232, 0.3);
+  }
+
+  .btn-home-run {
+    width: 100%;
+    min-height: 44px;
+    border-radius: 8px;
+    border: 1px solid rgba(248, 113, 113, 0.45);
+    background: rgba(248, 113, 113, 0.14);
+    color: #fca5a5;
+    font-size: 0.9rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  .btn-home-run:hover {
+    background: rgba(248, 113, 113, 0.25);
   }
 
   .banner-note {
