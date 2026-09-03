@@ -445,7 +445,7 @@
             </div>
 
             <div class="hero-scorebug">
-              <div class="league-box">MLB</div>
+              <div class="league-box">CDC</div>
               <div class="team-box">
                 <span class="team-short">{getTeamParts(match.away_team_name).short}</span>
                 <span class="team-long">{getTeamParts(match.away_team_name).long}</span>
@@ -621,54 +621,11 @@
                 >1B</button>
               </div>
             </div>
+            <br>
             <button class="btn-clear" on:click={clearBases}>Clear Bases</button>
           </section>
 
-          <section class="card obs-settings-card">
-            <h2>OBS View Options</h2>
-            <div class="obs-toggles">
-              <label class="obs-toggle">
-                <input
-                  type="checkbox"
-                  checked={match.obs_show_count}
-                  on:change={(e) => updateMatch({ obs_show_count: e.target.checked })}
-                />
-                <span class="toggle-label">Show innings, outs, strikes &amp; balls</span>
-              </label>
-              <label class="obs-toggle">
-                <input
-                  type="checkbox"
-                  checked={match.obs_show_diamond}
-                  on:change={(e) => updateMatch({ obs_show_diamond: e.target.checked })}
-                />
-                <span class="toggle-label">Show diamond (base runners)</span>
-              </label>
-            </div>
-            <div class="banner-url-row">
-              <label class="banner-url-label" for="banner-url-input">Advertising banners (450×100) — one image URL per line</label>
-              <div class="banner-url-input-row">
-                <textarea
-                  id="banner-url-input"
-                  value={match.banner_url || ''}
-                  placeholder="https://example.com/banner-1.png&#10;&#10;https://example.com/banner-2.png"
-                  class="banner-url-input"
-                  on:change={(e) => {
-                    const val = (e.target.value || '').replace(/\r\n/g, '\n')
-                    if (!isValidBannerConfig(val)) {
-                      error = 'Each banner URL must start with https://'
-                      return
-                    }
-                    updateMatch({ banner_url: val.trim() ? val : null })
-                  }}
-                ></textarea>
-                {#if match.banner_url}
-                  <button class="btn-clear-banner" on:click={() => updateMatch({ banner_url: null })} title="Remove banner">✕</button>
-                {/if}
-              </div>
-              <p class="obs-note banner-note">Banners rotate automatically in OBS. Leave blank lines to create intentional no-ad slots; even without blank lines, the rotation includes no-ad moments.</p>
-            </div>
-            <p class="obs-note">The score is always visible. Changes apply instantly to the OBS overlay.</p>
-          </section>
+
 
           <section class="card at-bat-card">
             <h2>Turno al bat</h2>
@@ -726,6 +683,53 @@
             <button class="btn-home-run" on:click={triggerHomeRun}>💥 Home Run</button>
           </section>
 
+                    <section class="card obs-settings-card">
+            <h2>OBS View Options</h2>
+            <div class="obs-toggles">
+              <label class="obs-toggle">
+                <input
+                  type="checkbox"
+                  checked={match.obs_show_count}
+                  on:change={(e) => updateMatch({ obs_show_count: e.target.checked })}
+                />
+                <span class="toggle-label">Show innings, outs, strikes &amp; balls</span>
+              </label>
+              <label class="obs-toggle">
+                <input
+                  type="checkbox"
+                  checked={match.obs_show_diamond}
+                  on:change={(e) => updateMatch({ obs_show_diamond: e.target.checked })}
+                />
+                <span class="toggle-label">Show diamond (base runners)</span>
+              </label>
+            </div>
+            <div class="banner-url-row">
+              <label class="banner-url-label" for="banner-url-input">Advertising banners (450×100) — one image URL per line</label>
+              <div class="banner-url-input-row">
+                <textarea
+                  id="banner-url-input"
+                  value={match.banner_url || ''}
+                  placeholder="https://example.com/banner-1.png&#10;&#10;https://example.com/banner-2.png"
+                  class="banner-url-input"
+                  on:change={(e) => {
+                    const val = (e.target.value || '').replace(/\r\n/g, '\n')
+                    if (!isValidBannerConfig(val)) {
+                      error = 'Each banner URL must start with https://'
+                      return
+                    }
+                    updateMatch({ banner_url: val.trim() ? val : null })
+                  }}
+                ></textarea>
+                {#if match.banner_url}
+                  <button class="btn-clear-banner" on:click={() => updateMatch({ banner_url: null })} title="Remove banner">✕</button>
+                {/if}
+              </div>
+              <p class="obs-note banner-note">Banners rotate automatically in OBS. Leave blank lines to create intentional no-ad slots; even without blank lines, the rotation includes no-ad moments.</p>
+            </div>
+            <p class="obs-note">The score is always visible. Changes apply instantly to the OBS overlay.</p>
+          </section>
+
+          
         </div>
 
         <!-- Fixed quick-action bar: large thumb-friendly buttons pinned to the bottom -->
