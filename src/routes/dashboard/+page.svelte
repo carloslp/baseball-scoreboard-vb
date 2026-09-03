@@ -279,6 +279,39 @@
     })
   }
 
+  /** @param {string | null | undefined} name */
+  function getTeamParts(name) {
+    const normalized = (name || '').trim().replace(/\s+/g, ' ')
+    if (!normalized) {
+      return { short: '---', long: 'TEAM' }
+    }
+
+    const words = normalized.split(' ')
+    const firstWord = words[0]
+    if (words.length > 1 && /^[A-Za-z0-9]{2,4}$/.test(firstWord)) {
+      return {
+        short: firstWord.toUpperCase(),
+        long: words.slice(1).join(' ').toUpperCase()
+      }
+    }
+
+    const filteredWords = words.filter((word) => !/^(de|del|la|las|los|the|and|y)$/i.test(word))
+    const sourceWords = filteredWords.length ? filteredWords : words
+    const short = sourceWords.length > 1
+      ? sourceWords.slice(0, 3).map((word) => word[0]).join('').toUpperCase()
+      : sourceWords[0].slice(0, 3).toUpperCase()
+
+    return {
+      short,
+      long: normalized.toUpperCase()
+    }
+  }
+
+  /** @param {number} outs */
+  function getOutsLabel(outs) {
+    return `${outs} OUT${outs === 1 ? '' : 'S'}`
+  }
+
   onDestroy(() => {
     clearTimeout(nameDebounceTimer)
     clearTimeout(flashTimer)
@@ -331,15 +364,9 @@
       {#if match}
         <div class="match-layout">
 
-          <!-- Marcador Total (Carreras) + Inning actual: parte superior central con H1 -->
           <div class="score-hero card">
-            <div class="hero-team hero-away" style="--team-color: {match.away_team_color}">
-              <span class="hero-role">Visitante</span>
-              <span class="hero-team-name">{match.away_team_name || 'AWAY'}</span>
-              <span class="hero-runs {flash.away_score ? 'flash' : ''}">{match.away_score}</span>
-            </div>
-
-            <div class="hero-center">
+            <div class="score-hero-header">
+              <span class="league-pill">MLB</span>
               <div class="hero-inning-row">
                 <button class="btn-icon" on:click={() => adjustInning(-1)} disabled={match.inning <= 1}>▼</button>
                 <div class="hero-inning-display">
@@ -355,44 +382,92 @@
                       title="Bottom of inning"
                     >▼</button>
                   </div>
-                  <span class="hero-inning-number {flash.inning || flash.inning_half ? 'flash' : ''}">{match.inning}</span>
+                  <span class="hero-inning-number {flash.inning || flash.inning_half ? 'flash' : ''}">{match.inning_half === 'top' ? '▲' : '▼'} {match.inning}</span>
                 </div>
                 <button class="btn-icon" on:click={() => adjustInning(1)}>▲</button>
               </div>
-              <div class="inning-label">{match.inning_half === 'top' ? 'TOP' : 'BOTTOM'} of {match.inning}</div>
-
-              <div class="bases-buttons">
-                <div class="bases-row-top">
-                  <button
-                    class="base-btn-ui base2 {match.base2 ? 'occupied' : ''}"
-                    on:click={() => toggleBase(2)}
-                    aria-label="2nd base"
-                    title="2nd base"
-                  >2B</button>
-                </div>
-                <div class="bases-row-mid">
-                  <button
-                    class="base-btn-ui base3 {match.base3 ? 'occupied' : ''}"
-                    on:click={() => toggleBase(3)}
-                    aria-label="3rd base"
-                    title="3rd base"
-                  >3B</button>
-                  <div class="bases-gap"></div>
-                  <button
-                    class="base-btn-ui base1 {match.base1 ? 'occupied' : ''}"
-                    on:click={() => toggleBase(1)}
-                    aria-label="1st base"
-                    title="1st base"
-                  >1B</button>
-                </div>
-              </div>
-              <button class="btn-clear" on:click={clearBases}>Clear Bases</button>
             </div>
 
-            <div class="hero-team hero-home" style="--team-color: {match.home_team_color}">
-              <span class="hero-role">Local</span>
-              <span class="hero-team-name">{match.home_team_name || 'HOME'}</span>
-              <span class="hero-runs {flash.home_score ? 'flash' : ''}">{match.home_score}</span>
+            <div class="score-hero-board">
+              <div class="hero-team-row">
+                <div class="hero-team-accent" style="background: {match.away_team_color}"></div>
+                <div class="hero-team-copy">
+                  <span class="hero-team-short">{getTeamParts(match.away_team_name).short}</span>
+                  <span class="hero-team-name">{getTeamParts(match.away_team_name).long}</span>
+                </div>
+                <span class="hero-runs {flash.away_score ? 'flash' : ''}">{match.away_score}</span>
+              </div>
+
+              <div class="hero-team-row">
+                <div class="hero-team-accent" style="background: {match.home_team_color}"></div>
+                <div class="hero-team-copy">
+                  <span class="hero-team-short">{getTeamParts(match.home_team_name).short}</span>
+                  <span class="hero-team-name">{getTeamParts(match.home_team_name).long}</span>
+                </div>
+                <span class="hero-runs {flash.home_score ? 'flash' : ''}">{match.home_score}</span>
+              </div>
+            </div>
+
+            <div class="hero-status-grid">
+              <div class="hero-status-card">
+                <span class="hero-status-label">Count</span>
+                <span class="hero-status-value">{match.balls} - {match.strikes}</span>
+                <span class="hero-status-subvalue">B - S</span>
+              </div>
+
+              <div class="hero-status-card">
+                <span class="hero-status-label">Outs</span>
+                <div class="outs-pips hero-outs-pips">
+                  {#each Array(3) as _, i}
+                    <span class="out-pip {i < match.outs ? 'filled' : ''}"></span>
+                  {/each}
+                </div>
+                <span class="hero-status-subvalue">{getOutsLabel(match.outs)}</span>
+              </div>
+
+              <div class="hero-status-card hero-bases-card">
+                <span class="hero-status-label">Bases</span>
+                <div class="bases-buttons">
+                  <div class="bases-row-top">
+                    <button
+                      class="base-btn-ui base2 {match.base2 ? 'occupied' : ''}"
+                      on:click={() => toggleBase(2)}
+                      aria-label="2nd base"
+                      title="2nd base"
+                    >2B</button>
+                  </div>
+                  <div class="bases-row-mid">
+                    <button
+                      class="base-btn-ui base3 {match.base3 ? 'occupied' : ''}"
+                      on:click={() => toggleBase(3)}
+                      aria-label="3rd base"
+                      title="3rd base"
+                    >3B</button>
+                    <div class="bases-gap"></div>
+                    <button
+                      class="base-btn-ui base1 {match.base1 ? 'occupied' : ''}"
+                      on:click={() => toggleBase(1)}
+                      aria-label="1st base"
+                      title="1st base"
+                    >1B</button>
+                  </div>
+                </div>
+                <button class="btn-clear btn-clear-compact" on:click={clearBases}>Clear Bases</button>
+              </div>
+            </div>
+
+            {#if match.at_bat_text}
+              <div class="hero-strip">
+                <span class="hero-strip-label">Now batting</span>
+                <span class="hero-strip-text">{match.at_bat_text}</span>
+              </div>
+            {/if}
+
+            <div class="hero-strip sponsor-strip">
+              <span class="hero-strip-label">Sponsor</span>
+              <span class="hero-strip-text sponsor-text">
+                {match.banner_url ? 'Banner rotation active in OBS' : 'Add a banner URL to show sponsor artwork'}
+              </span>
             </div>
           </div>
 
@@ -414,9 +489,10 @@
                   on:input={(e) => onTeamNameChange('away_team_name', e.target.value)}
                   class="team-name-input"
                   maxlength="20"
-                  placeholder="AWAY"
+                  placeholder="NYY Yankees"
                 />
               </div>
+              <p class="team-input-note">Usa “siglas + nombre” para separar ambas líneas en el overlay.</p>
               <div class="score-control">
                 <button class="score-btn minus" on:click={() => adjustScore('away', -1)} disabled={match.away_score <= 0}>−</button>
                 <span class="score-display {flash.away_score ? 'flash' : ''}">{match.away_score}</span>
@@ -440,9 +516,10 @@
                   on:input={(e) => onTeamNameChange('home_team_name', e.target.value)}
                   class="team-name-input"
                   maxlength="20"
-                  placeholder="HOME"
+                  placeholder="BOS Red Sox"
                 />
               </div>
+              <p class="team-input-note">Ejemplo: “BOS Red Sox” mostrará siglas arriba y nombre abajo.</p>
               <div class="score-control">
                 <button class="score-btn minus" on:click={() => adjustScore('home', -1)} disabled={match.home_score <= 0}>−</button>
                 <span class="score-display {flash.home_score ? 'flash' : ''}">{match.home_score}</span>
@@ -842,68 +919,106 @@
     gap: 1rem;
   }
 
-  /* ── Score Hero: Marcador Total + Inning (H1) ────────────── */
+  /* ── Score Hero: MLB-style preview ────────────────────────── */
   .score-hero {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    padding: 1.5rem;
+    background:
+      linear-gradient(180deg, rgba(7, 16, 33, 0.98), rgba(5, 11, 24, 0.98));
+    border-color: rgba(255,255,255,0.18);
+  }
+
+  .score-hero-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 1.5rem;
-    padding: 2rem 2.5rem;
+    gap: 1rem;
+    flex-wrap: wrap;
   }
 
-  .hero-team {
-    flex: 1;
+  .league-pill {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 3.1rem;
+    padding: 0.22rem 0.65rem;
+    border-radius: 999px;
+    background: linear-gradient(90deg, #0a3c91, #0d57cb);
+    color: #ffffff;
+    font-size: 0.68rem;
+    font-weight: 900;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,0.18);
+  }
+
+  .score-hero-board {
     display: flex;
     flex-direction: column;
-    gap: 0.25rem;
+    gap: 0.45rem;
   }
 
-  .hero-away {
-    align-items: flex-start;
-    border-left: 4px solid var(--team-color, rgba(255,255,255,0.1));
-    padding-left: 1.25rem;
+  .hero-team-row {
+    display: grid;
+    grid-template-columns: 5px minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 0.85rem;
+    min-height: 72px;
+    padding: 0.7rem 0.9rem;
+    border-radius: 12px;
+    background: linear-gradient(135deg, rgba(255,255,255,0.08), rgba(255,255,255,0.03));
   }
 
-  .hero-home {
-    align-items: flex-end;
-    border-right: 4px solid var(--team-color, rgba(255,255,255,0.1));
-    padding-right: 1.25rem;
+  .hero-team-accent {
+    width: 5px;
+    height: 100%;
+    min-height: 48px;
+    border-radius: 999px;
   }
 
-  .hero-role {
-    font-size: 0.7rem;
-    font-weight: 700;
-    text-transform: uppercase;
+  .hero-team-copy {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.12rem;
+  }
+
+  .hero-team-short {
+    color: #ffffff;
+    font-size: 1.25rem;
+    font-weight: 900;
     letter-spacing: 0.12em;
-    color: #8b8fa8;
+    line-height: 1;
+    text-transform: uppercase;
   }
 
   .hero-team-name {
-    font-size: 1.1rem;
-    font-weight: 700;
-    color: var(--team-color, #fff);
+    color: rgba(221,232,255,0.88);
+    font-size: 0.78rem;
+    font-weight: 800;
+    letter-spacing: 0.12em;
     text-transform: uppercase;
-    letter-spacing: 0.05em;
-    max-width: 12rem;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
   }
 
   .hero-runs {
-    font-size: 5rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 64px;
+    padding: 0.2rem 0.65rem;
+    border-radius: 12px;
+    background: rgba(0,0,0,0.38);
+    color: #ffffff;
+    font-size: 2.25rem;
     font-weight: 900;
-    color: var(--team-color, #fff);
     line-height: 1;
     font-variant-numeric: tabular-nums;
-  }
-
-  .hero-center {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.5rem;
-    flex: 0 0 auto;
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,0.08);
   }
 
   .hero-inning-row {
@@ -919,13 +1034,118 @@
   }
 
   .hero-inning-number {
-    font-size: 5rem;
+    color: #ffffff;
+    font-size: 1.05rem;
     font-weight: 900;
-    color: #fff;
+    letter-spacing: 0.08em;
     line-height: 1;
+    text-transform: uppercase;
     font-variant-numeric: tabular-nums;
-    min-width: 3.5rem;
+  }
+
+  .hero-status-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.65rem;
+  }
+
+  .hero-status-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.3rem;
+    min-height: 114px;
+    padding: 0.8rem 0.7rem;
+    border-radius: 12px;
+    background: rgba(255,255,255,0.05);
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,0.07);
     text-align: center;
+  }
+
+  .hero-status-label,
+  .hero-strip-label {
+    color: rgba(201,216,255,0.88);
+    font-size: 0.6rem;
+    font-weight: 900;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+  }
+
+  .hero-status-value {
+    color: #ffffff;
+    font-size: 1.05rem;
+    font-weight: 900;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .hero-status-subvalue {
+    color: rgba(220,228,247,0.74);
+    font-size: 0.68rem;
+    font-weight: 800;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+
+  .outs-pips {
+    display: flex;
+    gap: 5px;
+  }
+
+  .out-pip {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    border: 1.5px solid rgba(248,113,113,0.42);
+    background: transparent;
+  }
+
+  .out-pip.filled {
+    background: #f87171;
+    border-color: #f87171;
+  }
+
+  .hero-bases-card {
+    gap: 0.5rem;
+  }
+
+  .hero-outs-pips {
+    margin: 0.1rem 0;
+  }
+
+  .hero-strip {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    min-height: 48px;
+    padding: 0.75rem 0.9rem;
+    border-radius: 12px;
+    background: rgba(255,255,255,0.05);
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,0.07);
+  }
+
+  .hero-strip-text {
+    color: #ffffff;
+    font-size: 0.88rem;
+    font-weight: 800;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .sponsor-strip {
+    justify-content: space-between;
+  }
+
+  .sponsor-text {
+    color: rgba(221,232,255,0.8);
+    font-size: 0.76rem;
+    letter-spacing: 0.08em;
   }
 
   /* ── Teams Split: Visitante (Left) | Local (Right) ────────── */
@@ -955,28 +1175,15 @@
     }
 
     .score-hero {
-      flex-direction: column;
       padding: 1.5rem;
     }
 
-    .hero-away,
-    .hero-home {
-      width: 100%;
-      align-items: center;
-      border-left: none;
-      border-right: none;
-      border-top: 4px solid var(--team-color, rgba(255,255,255,0.1));
-      padding-left: 0;
-      padding-right: 0;
-      padding-top: 1rem;
-    }
-
     .hero-runs {
-      font-size: 3.5rem;
+      font-size: 2rem;
     }
 
-    .hero-inning-number {
-      font-size: 3.5rem;
+    .hero-status-grid {
+      grid-template-columns: 1fr;
     }
   }
 
@@ -986,8 +1193,8 @@
       font-size: 2.75rem;
     }
 
-    .hero-inning-number {
-      font-size: 2.75rem;
+    .hero-team-short {
+      font-size: 1rem;
     }
 
     .score-display {
@@ -1048,7 +1255,6 @@
   /* ── Landscape orientation handling ──────────────────────── */
   @media (max-height: 500px) and (orientation: landscape) {
     .score-hero {
-      flex-direction: row;
       padding: 0.75rem 1rem;
       gap: 1rem;
     }
@@ -1058,23 +1264,11 @@
     }
 
     .hero-inning-number {
-      font-size: 2.5rem;
+      font-size: 0.95rem;
     }
 
     .hero-team-name {
       font-size: 0.9rem;
-    }
-
-    .hero-role {
-      font-size: 0.6rem;
-    }
-
-    .hero-center {
-      gap: 0.25rem;
-    }
-
-    .bases-buttons {
-      display: none;
     }
 
     .hero-inning-row {
@@ -1083,6 +1277,10 @@
 
     .hero-inning-display {
       gap: 0.25rem;
+    }
+
+    .hero-status-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
     }
 
     main {
@@ -1133,7 +1331,7 @@
     }
 
     .hero-inning-number {
-      font-size: 3rem;
+      font-size: 1rem;
     }
 
     .count-btn {
@@ -1200,6 +1398,12 @@
 
   .team-name-input:focus {
     border-color: rgba(255,255,255,0.5);
+  }
+
+  .team-input-note {
+    color: #8b8fa8;
+    font-size: 0.76rem;
+    line-height: 1.4;
   }
 
   .score-control {
@@ -1289,19 +1493,12 @@
     color: #63b3ed;
   }
 
-  .inning-label {
-    font-size: 0.85rem;
-    color: #aaaaaa;
-    font-weight: 700;
-    letter-spacing: 0.05em;
-  }
-
   .bases-buttons {
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 0.5rem;
-    margin-bottom: 0.75rem;
+    margin-bottom: 0;
   }
 
   .bases-row-top {
@@ -1503,11 +1700,11 @@
     }
 
     .hero-inning-number {
-      font-size: 4rem;
+      font-size: 1rem;
     }
 
     .hero-runs {
-      font-size: 4rem;
+      font-size: 2.4rem;
     }
 
     .score-display {
@@ -1531,6 +1728,12 @@
   .btn-clear:hover {
     background: rgba(255,255,255,0.12);
     color: #ffffff;
+  }
+
+  .btn-clear-compact {
+    padding-inline: 0.85rem;
+    width: auto;
+    min-width: 0;
   }
 
   .no-match {
