@@ -16,8 +16,13 @@
   let previousMatch = null
   let flash = {}
   let flashTimer = null
+  let newBatterName = ''
+  let battersList = []
 
   $: obsUrl = match ? `${typeof window !== 'undefined' ? window.location.origin : ''}/obs/${match.user_obs_token}` : ''
+  $: battersList = Array.isArray(match?.batters_list)
+    ? match.batters_list.filter((name) => typeof name === 'string' && name.trim())
+    : []
 
   onMount(async () => {
     const { data: { session: s } } = await supabase.auth.getSession()
@@ -233,6 +238,37 @@
   async function logout() {
     await supabase.auth.signOut()
     goto('/login')
+  }
+
+  async function clearAtBatText() {
+    await updateMatch({ at_bat_text: null })
+  }
+
+  async function addBatterToList() {
+    if (!match) return
+    const value = (newBatterName || '').trim()
+    if (!value) return
+    await updateMatch({ batters_list: [...battersList, value] })
+    newBatterName = ''
+  }
+
+  async function removeBatterFromList(index) {
+    if (!match) return
+    await updateMatch({ batters_list: battersList.filter((_, i) => i !== index) })
+  }
+
+  async function setAtBatBatter(name) {
+    if (!match) return
+    const value = (name || '').trim()
+    await updateMatch({
+      at_bat_text: value || null,
+      at_bat_counter: (match.at_bat_counter || 0) + 1
+    })
+  }
+
+  async function triggerHomeRun() {
+    if (!match) return
+    await updateMatch({ home_run_counter: (match.home_run_counter || 0) + 1 })
   }
 
   onDestroy(() => {
@@ -494,6 +530,41 @@
               <p class="obs-note banner-note">Shown in the top-left corner of the OBS overlay (450×100 px). Must be an https:// URL.</p>
             </div>
             <p class="obs-note">The score is always visible. Changes apply instantly to the OBS overlay.</p>
+          </section>
+
+          <section class="card at-bat-card">
+            <h2>Turno al bat</h2>
+            <div class="at-bat-row">
+              <input
+                type="text"
+                value={newBatterName}
+                placeholder="Agregar bateador"
+                class="at-bat-input"
+                maxlength="60"
+                on:input={(e) => { newBatterName = e.target.value }}
+              />
+              <button class="btn-at-bat-save" on:click={addBatterToList} disabled={!newBatterName.trim()}>Agregar</button>
+            </div>
+            {#if battersList.length > 0}
+              <div class="batters-list">
+                {#each battersList as batter, i}
+                  <div class="batter-item">
+                    <span class="batter-name">{batter}</span>
+                    <div class="batter-actions">
+                      <button class="btn-at-bat-save" on:click={() => setAtBatBatter(batter)}>Mostrar</button>
+                      <button class="btn-clear-banner" on:click={() => removeBatterFromList(i)} title="Eliminar bateador">✕</button>
+                    </div>
+                  </div>
+                {/each}
+              </div>
+            {:else}
+              <p class="obs-note">Agrega bateadores para mostrarlos con un clic.</p>
+            {/if}
+            <div class="at-bat-current">
+              <span class="at-bat-current-text">{match.at_bat_text ? `Mostrando: ${match.at_bat_text}` : 'No hay turno al bat activo'}</span>
+              <button class="btn-clear-banner" on:click={clearAtBatText} disabled={!match.at_bat_text}>Limpiar turno</button>
+            </div>
+            <button class="btn-home-run" on:click={triggerHomeRun}>💥 Home Run</button>
           </section>
 
         </div>
@@ -1582,6 +1653,118 @@
 
   .btn-clear-banner:hover {
     background: rgba(229, 57, 53, 0.25);
+  }
+
+  .at-bat-card {
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+  }
+
+  .at-bat-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+
+  .at-bat-current {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+
+  .at-bat-current-text {
+    color: #ffffff;
+    font-size: 0.85rem;
+    font-weight: 600;
+  }
+
+  .at-bat-input {
+    flex: 1;
+    min-width: 220px;
+    background: #1a1a2e;
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 6px;
+    color: #ffffff;
+    font-size: 0.9rem;
+    padding: 0.5rem 0.75rem;
+    min-height: 40px;
+  }
+
+  .at-bat-input:focus {
+    outline: none;
+    border-color: rgba(26, 115, 232, 0.6);
+  }
+
+  .btn-at-bat-save {
+    background: rgba(26, 115, 232, 0.2);
+    border: 1px solid rgba(26, 115, 232, 0.45);
+    color: #63b3ed;
+    border-radius: 6px;
+    padding: 0.45rem 0.9rem;
+    min-height: 40px;
+    font-size: 0.85rem;
+    font-weight: 700;
+  }
+
+  .btn-at-bat-save:hover {
+    background: rgba(26, 115, 232, 0.3);
+  }
+
+  .batters-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+    max-height: 240px;
+    overflow-y: auto;
+    padding-right: 0.2rem;
+  }
+
+  .batter-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    padding: 0.45rem 0.55rem;
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 8px;
+    background: rgba(255,255,255,0.03);
+  }
+
+  .batter-name {
+    color: #ffffff;
+    font-size: 0.9rem;
+    font-weight: 600;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .batter-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    flex-shrink: 0;
+  }
+
+  .btn-home-run {
+    width: 100%;
+    min-height: 44px;
+    border-radius: 8px;
+    border: 1px solid rgba(248, 113, 113, 0.45);
+    background: rgba(248, 113, 113, 0.14);
+    color: #fca5a5;
+    font-size: 0.9rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  .btn-home-run:hover {
+    background: rgba(248, 113, 113, 0.25);
   }
 
   .banner-note {
