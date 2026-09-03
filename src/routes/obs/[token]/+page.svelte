@@ -286,7 +286,7 @@
         </div>
       {/if}
 
-      {#if match.at_bat_text}
+      {#if showAtBatBanner && match.at_bat_text}
         <div class="at-bat-strip {showAtBatBanner ? 'live' : ''}">
           <span class="at-bat-label">NOW BATTING</span>
           <span class="at-bat-name">{match.at_bat_text}</span>
