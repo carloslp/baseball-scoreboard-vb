@@ -489,30 +489,43 @@
   }
 
   .score-bug {
+    position: relative;
     display: flex;
     flex-direction: row;
     align-items: stretch;
-    background: rgba(0, 0, 0, 0.95);
-    border: 1px solid rgba(255,255,255,0.25);
+    background: linear-gradient(135deg, rgba(5,18,42,0.96), rgba(14,40,79,0.96));
+    border: 1px solid rgba(255,255,255,0.28);
     border-radius: 8px;
     overflow: hidden;
     backdrop-filter: blur(10px);
-    box-shadow: 0 4px 24px rgba(0,0,0,0.7);
+    box-shadow: 0 10px 26px rgba(0,0,0,0.56);
     min-width: 280px;
+  }
+
+  .score-bug::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, #d90429 0%, #ffffff 50%, #0a4db3 100%);
+    opacity: 0.9;
+    pointer-events: none;
   }
 
   .teams {
     display: flex;
     flex-direction: column;
-    border-right: 1px solid rgba(255,255,255,0.1);
+    border-right: 1px solid rgba(255,255,255,0.14);
   }
 
   .team-row {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0.4rem 0.75rem;
-    gap: 1rem;
+    gap: 0.9rem;
+    padding: 0.45rem 0.75rem;
   }
 
   .divider {
@@ -522,21 +535,24 @@
   }
 
   .team-name {
-    font-size: 0.75rem;
+    font-size: 0.74rem;
     font-weight: 900;
     text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: var(--color, #ffffff);
+    letter-spacing: 0.07em;
+    color: #ffffff;
+    text-shadow: 0 0 8px rgba(255, 255, 255, 0.18);
     min-width: 40px;
   }
 
   .team-score {
-    font-size: 1.25rem;
+    font-size: 1.2rem;
     font-weight: 900;
     color: #FFE600;
     font-variant-numeric: tabular-nums;
     min-width: 1.5rem;
     text-align: right;
+    line-height: 1;
+    text-shadow: 0 0 10px rgba(255, 230, 0, 0.38);
   }
 
   .game-info {
@@ -544,8 +560,9 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 0.4rem 0.75rem;
-    gap: 0.25rem;
+    padding: 0.45rem 0.72rem;
+    gap: 0.24rem;
+    background: rgba(0,0,0,0.2);
   }
 
   .inning-info {
@@ -561,10 +578,10 @@
   }
 
   .inning-text {
-    font-size: 0.8rem;
+    font-size: 0.78rem;
     font-weight: 900;
     color: #ffffff;
-    letter-spacing: 0.02em;
+    letter-spacing: 0.03em;
   }
 
   .count-info {
@@ -580,7 +597,7 @@
   }
 
   .count-val {
-    font-size: 0.9rem;
+    font-size: 0.88rem;
     font-weight: 900;
     font-variant-numeric: tabular-nums;
   }
@@ -610,8 +627,9 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 0.4rem 0.75rem;
-    border-left: 1px solid rgba(255,255,255,0.1);
+    padding: 0.45rem 0.72rem;
+    border-left: 1px solid rgba(255,255,255,0.14);
+    background: rgba(0,0,0,0.16);
   }
 
   .bases-svg {
