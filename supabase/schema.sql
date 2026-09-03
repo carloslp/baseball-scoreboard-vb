@@ -23,6 +23,7 @@ create table public.matches (
   obs_show_diamond boolean not null default true,
   obs_show_count boolean not null default true,
   at_bat_text text,
+  at_bat_counter integer not null default 0,
   batters_list text[] not null default '{}'::text[],
   home_run_counter integer not null default 0,
   is_active boolean not null default true,
@@ -89,5 +90,6 @@ alter table public.matches
 -- Add at-bat text and home run trigger columns (migration for existing databases)
 alter table public.matches
   add column if not exists at_bat_text text,
+  add column if not exists at_bat_counter integer not null default 0,
   add column if not exists batters_list text[] not null default '{}'::text[],
   add column if not exists home_run_counter integer not null default 0;

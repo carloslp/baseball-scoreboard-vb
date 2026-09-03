@@ -260,7 +260,10 @@
   async function setAtBatBatter(name) {
     if (!match) return
     const value = (name || '').trim()
-    await updateMatch({ at_bat_text: value || null })
+    await updateMatch({
+      at_bat_text: value || null,
+      at_bat_counter: (match.at_bat_counter || 0) + 1
+    })
   }
 
   async function triggerHomeRun() {
