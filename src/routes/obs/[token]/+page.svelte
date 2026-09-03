@@ -267,7 +267,7 @@
 
     <div class="score-stack">
       <div class="score-bug">
-        <div class="league-box">MLB</div>
+        <div class="league-box">CDC</div>
 
         <div class="team-box">
           <span class="team-short">{getTeamParts(match.away_team_name).short}</span>
