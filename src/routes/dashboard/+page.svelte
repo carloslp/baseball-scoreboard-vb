@@ -18,6 +18,11 @@
   let flashTimer = null
   let newBatterName = ''
   let battersList = []
+  let atBatStats = []
+  let loadingAtBatStats = false
+  let atBatStatsError = ''
+
+  const AT_BAT_STATS_URL = 'https://script.google.com/macros/s/AKfycby7mLKmo5tYeyah3g75xA9FS48FPDbq6SJMkFDPErFi9dgrNAvlOEeapwTQ2fZTlHZg/exec?token=dads-12w1-dd3f-da1g&id=1r56WDn_pgZwoAHiiWmeaadUe1hepXC3Mo4t4PWwwfbQ&hoja=AVG-Activo'
 
   $: obsUrl = match ? `${typeof window !== 'undefined' ? window.location.origin : ''}/obs/${match.user_obs_token}` : ''
   $: battersList = Array.isArray(match?.batters_list)
@@ -31,12 +36,52 @@
       return
     }
     session = s
-    await loadActiveMatch()
+    await Promise.all([loadActiveMatch(), loadAtBatStats()])
 
     supabase.auth.onAuthStateChange((event, s) => {
       if (event === 'SIGNED_OUT') goto('/login')
     })
   })
+
+  /** @param {string | null | undefined} name */
+  function getShortBatterName(name) {
+    const parts = (name || '').trim().replace(/\s+/g, ' ').split(' ').filter(Boolean)
+    if (parts.length === 0) return ''
+    if (parts.length === 1) return parts[0]
+    return `${parts[0]} ${parts[1]}`
+  }
+
+  async function loadAtBatStats() {
+    loadingAtBatStats = true
+    atBatStatsError = ''
+
+    try {
+      const response = await fetch(AT_BAT_STATS_URL)
+      const payload = await response.json()
+      const data = Array.isArray(payload?.data) ? payload.data : []
+      atBatStats = data
+        .map((item) => {
+          const fullName = typeof item?.Nombre === 'string' ? item.Nombre.trim() : ''
+          const shortName = getShortBatterName(fullName)
+          if (!shortName) return null
+          return {
+            fullName,
+            shortName,
+            AB: item?.AB ?? 0,
+            H: item?.H ?? 0,
+            HR: item?.HR ?? 0,
+            K: item?.K ?? 0,
+            AVG: item?.AVG ?? '.000'
+          }
+        })
+        .filter(Boolean)
+    } catch (err) {
+      atBatStats = []
+      atBatStatsError = 'No se pudieron cargar las estadísticas de turno al bat.'
+    } finally {
+      loadingAtBatStats = false
+    }
+  }
 
   async function loadActiveMatch() {
     loading = true
@@ -619,18 +664,36 @@
 
           <section class="card at-bat-card">
             <h2>Turno al bat</h2>
-            <div class="at-bat-row">
-              <input
-                type="text"
-                value={newBatterName}
-                placeholder="Agregar bateador"
-                class="at-bat-input"
-                maxlength="60"
-                on:input={(e) => { newBatterName = e.target.value }}
-              />
-              <button class="btn-at-bat-save" on:click={addBatterToList} disabled={!newBatterName.trim()}>Agregar</button>
-            </div>
-            {#if battersList.length > 0}
+            {#if loadingAtBatStats}
+              <p class="obs-note">Cargando turnos al bat…</p>
+            {:else if atBatStats.length > 0}
+              <div class="batters-list">
+                {#each atBatStats as batter}
+                  <div class="batter-item">
+                    <div class="batter-details">
+                      <span class="batter-name">{batter.shortName}</span>
+                      <span class="batter-stats">AB {batter.AB} · H {batter.H} · HR {batter.HR} · K {batter.K} · AVG {batter.AVG}</span>
+                    </div>
+                    <div class="batter-actions">
+                      <button class="btn-at-bat-save" on:click={() => setAtBatBatter(batter.shortName)}>Mostrar</button>
+                    </div>
+                  </div>
+                {/each}
+              </div>
+            {:else}
+              <div class="at-bat-row">
+                <input
+                  type="text"
+                  value={newBatterName}
+                  placeholder="Agregar bateador"
+                  class="at-bat-input"
+                  maxlength="60"
+                  on:input={(e) => { newBatterName = e.target.value }}
+                />
+                <button class="btn-at-bat-save" on:click={addBatterToList} disabled={!newBatterName.trim()}>Agregar</button>
+              </div>
+            {/if}
+            {#if !loadingAtBatStats && !atBatStats.length && battersList.length > 0}
               <div class="batters-list">
                 {#each battersList as batter, i}
                   <div class="batter-item">
@@ -642,8 +705,11 @@
                   </div>
                 {/each}
               </div>
-            {:else}
+            {:else if !loadingAtBatStats && !atBatStats.length}
               <p class="obs-note">Agrega bateadores para mostrarlos con un clic.</p>
+            {/if}
+            {#if atBatStatsError}
+              <p class="obs-note">{atBatStatsError}</p>
             {/if}
             <div class="at-bat-current">
               <span class="at-bat-current-text">{match.at_bat_text ? `Mostrando: ${match.at_bat_text}` : 'No hay turno al bat activo'}</span>
@@ -1957,6 +2023,21 @@
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+  }
+
+  .batter-details {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .batter-stats {
+    color: #b6c6d8;
+    font-size: 0.73rem;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+    line-height: 1.2;
   }
 
   .batter-actions {
