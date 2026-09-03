@@ -241,6 +241,12 @@
         </div>
         {/if}
       </div>
+      {#if showAtBatBanner && match.at_bat_text}
+        <div class="at-bat-strip">
+          <span class="at-bat-label">NOW BATTING</span>
+          <span class="at-bat-name">{match.at_bat_text}</span>
+        </div>
+      {/if}
       {#if bannerRotationSlots[currentBannerSlotIndex]}
         <div class="banner-strip">
           <img
@@ -250,12 +256,6 @@
             width="450"
             height="100"
           />
-        </div>
-      {/if}
-      {#if showAtBatBanner && match.at_bat_text}
-        <div class="at-bat-strip">
-          <span class="at-bat-label">NOW BATTING</span>
-          <span class="at-bat-name">{match.at_bat_text}</span>
         </div>
       {/if}
     </div>
