@@ -46,9 +46,17 @@
   /** @param {string | null | undefined} name */
   function getShortBatterName(name) {
     const parts = (name || '').trim().replace(/\s+/g, ' ').split(' ').filter(Boolean)
+    
     if (parts.length === 0) return ''
     if (parts.length === 1) return parts[0]
-    return `${parts[0]} ${parts[1]}`
+    if (parts.length === 2) return `${parts[0]} ${parts[1]}`
+    
+    // Si tiene 4 partes (Ej: "Julio Cesar Urias Acosta") -> parts[0] + parts[2]
+    // Si tiene 3 partes (Ej: "Julio Urias Acosta") -> parts[0] + parts[1]
+    if (parts.length >= 3) {
+      // Toma el primer nombre y el penúltimo elemento (primer apellido)
+      return `${parts[0]} ${parts[parts.length - 2]}`
+    }
   }
 
   async function loadAtBatStats() {
