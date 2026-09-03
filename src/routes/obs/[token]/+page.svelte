@@ -18,7 +18,7 @@
   let currentBannerSlotIndex = 0
   let lastBannerConfig = ''
 
-  $: token = $page.params.token
+  $: token = $page.params.token || ''
 
   onMount(async () => {
     await loadMatch()
@@ -144,11 +144,45 @@
     }
   }
 
+  /** @param {number} number */
   function getOrdinal(number) {
     const lastTwoDigits = number % 100
     if (lastTwoDigits >= 11 && lastTwoDigits <= 13) return number + 'th'
     const lastDigit = number % 10
     return number + (['th','st','nd','rd'][lastDigit] || 'th')
+  }
+
+  /** @param {string | null | undefined} name */
+  function getTeamParts(name) {
+    const normalized = (name || '').trim().replace(/\s+/g, ' ')
+    if (!normalized) {
+      return { short: '---', long: 'TEAM' }
+    }
+
+    const words = normalized.split(' ')
+    const firstWord = words[0]
+    if (words.length > 1 && /^[A-Za-z0-9]{2,4}$/.test(firstWord)) {
+      return {
+        short: firstWord.toUpperCase(),
+        long: words.slice(1).join(' ').toUpperCase()
+      }
+    }
+
+    const filteredWords = words.filter((word) => !/^(de|del|la|las|los|the|and|y)$/i.test(word))
+    const sourceWords = filteredWords.length ? filteredWords : words
+    const short = sourceWords.length > 1
+      ? sourceWords.slice(0, 3).map((word) => word[0]).join('').toUpperCase()
+      : sourceWords[0].slice(0, 3).toUpperCase()
+
+    return {
+      short,
+      long: normalized.toUpperCase()
+    }
+  }
+
+  /** @param {number} outs */
+  function getOutsLabel(outs) {
+    return `${outs} OUT${outs === 1 ? '' : 'S'}`
   }
 </script>
 
@@ -176,86 +210,74 @@
         </div>
       </div>
     {/if}
+
     <div class="score-stack">
       <div class="score-bug">
-        <div class="teams">
-          <div class="team-row" style="--color: {match.away_team_color}">
-            <span class="team-name">{match.away_team_name}</span>
-            <span class="team-score">{match.away_score}</span>
-          </div>
-          <div class="divider"></div>
-          <div class="team-row" style="--color: {match.home_team_color}">
-            <span class="team-name">{match.home_team_name}</span>
-            <span class="team-score">{match.home_score}</span>
-          </div>
+        <div class="league-box">MLB</div>
+
+        <div class="team-box">
+          <span class="team-short">{getTeamParts(match.away_team_name).short}</span>
+          <span class="team-long">{getTeamParts(match.away_team_name).long}</span>
         </div>
+        <div class="score-box">{match.away_score}</div>
+        <div class="score-separator"></div>
+        <div class="team-box">
+          <span class="team-short">{getTeamParts(match.home_team_name).short}</span>
+          <span class="team-long">{getTeamParts(match.home_team_name).long}</span>
+        </div>
+        <div class="score-box">{match.home_score}</div>
 
         {#if match.obs_show_count !== false}
-        <div class="game-info">
-          <div class="inning-info">
+          <div class="inning-box">
             <span class="half-arrow">{match.inning_half === 'top' ? '▲' : '▼'}</span>
             <span class="inning-text">{getOrdinal(match.inning)}</span>
           </div>
-          <div class="count-info">
-            <div class="count-section">
-              <span class="count-val balls">{match.balls}</span>
-              <span class="count-lbl">B</span>
+
+          <div class="count-box">
+            <div class="count-main">
+              <span class="balls-text">{match.balls}</span>
+              <span class="count-divider">-</span>
+              <span class="strikes-text">{match.strikes}</span>
             </div>
-            <span class="count-sep">·</span>
-            <div class="count-section">
-              <span class="count-val strikes">{match.strikes}</span>
-              <span class="count-lbl">S</span>
-            </div>
-            <span class="count-sep">·</span>
-            <div class="count-section">
-              <span class="count-val outs">{match.outs}</span>
-              <span class="count-lbl">O</span>
-            </div>
+            <span class="count-caption">B - S</span>
           </div>
-          <div class="outs-pips">
-            {#each Array(3) as _, i}
-              <span class="out-pip {i < match.outs ? 'filled' : ''}"></span>
-            {/each}
+
+          <div class="outs-box">
+            <div class="outs-pips">
+              {#each Array(3) as _, i}
+                <span class="out-pip {i < match.outs ? 'filled' : ''}"></span>
+              {/each}
+            </div>
+            <span class="outs-caption">{getOutsLabel(match.outs)}</span>
           </div>
-        </div>
         {/if}
 
         {#if match.obs_show_diamond !== false}
-        <div class="bases-col">
-          <svg class="bases-svg" viewBox="-6 -6 112 112" role="img" aria-label="Baseball diamond">
-            <polygon points="50,2 98,50 50,98 2,50" fill="none" stroke="rgba(255,255,255,0.18)" stroke-width="1.5"/>
-            <polygon points="50,88 56,94 50,100 44,94" fill="rgba(255,255,255,0.25)"/>
-            <polygon points="50,-4 56,2 50,8 44,2"
-              fill={match.base2 ? '#f0c040' : 'rgba(255,255,255,0.08)'}
-              stroke={match.base2 ? '#f0c040' : 'rgba(255,255,255,0.35)'}
-              stroke-width="2"/>
-            <polygon points="88,50 98,42 106,50 98,58"
-              fill={match.base1 ? '#f0c040' : 'rgba(255,255,255,0.08)'}
-              stroke={match.base1 ? '#f0c040' : 'rgba(255,255,255,0.35)'}
-              stroke-width="2"/>
-            <polygon points="-6,50 2,42 10,50 2,58"
-              fill={match.base3 ? '#f0c040' : 'rgba(255,255,255,0.08)'}
-              stroke={match.base3 ? '#f0c040' : 'rgba(255,255,255,0.35)'}
-              stroke-width="2"/>
-          </svg>
-        </div>
+          <div class="diamond-box">
+            <svg class="bases-svg" viewBox="-6 -6 112 112" role="img" aria-label="Baseball diamond">
+              <polygon points="50,2 98,50 50,98 2,50" fill="rgba(255,255,255,0.03)" stroke="rgba(255,255,255,0.1)" stroke-width="1.25"/>
+              <polygon points="50,-4 60,6 50,16 40,6"
+                fill={match.base2 ? '#ffc800' : 'rgba(255,255,255,0.1)'}
+                stroke={match.base2 ? '#ffe37a' : 'rgba(255,255,255,0.1)'}
+                stroke-width="1.8"/>
+              <polygon points="84,50 94,40 104,50 94,60"
+                fill={match.base1 ? '#ffc800' : 'rgba(255,255,255,0.1)'}
+                stroke={match.base1 ? '#ffe37a' : 'rgba(255,255,255,0.1)'}
+                stroke-width="1.8"/>
+              <polygon points="-4,50 6,40 16,50 6,60"
+                fill={match.base3 ? '#ffc800' : 'rgba(255,255,255,0.1)'}
+                stroke={match.base3 ? '#ffe37a' : 'rgba(255,255,255,0.1)'}
+                stroke-width="1.8"/>
+              <circle cx="50" cy="50" r="4" fill="rgba(255,255,255,0.2)" />
+            </svg>
+          </div>
         {/if}
       </div>
-      {#if showAtBatBanner && match.at_bat_text}
-        <div class="at-bat-strip">
+
+      {#if match.at_bat_text}
+        <div class="at-bat-strip {showAtBatBanner ? 'live' : ''}">
           <span class="at-bat-label">NOW BATTING</span>
           <span class="at-bat-name">{match.at_bat_text}</span>
-        </div>
-      {/if}
-      {#if bannerRotationSlots[currentBannerSlotIndex]}
-        <div class="banner-strip">
-          <img
-            src={bannerRotationSlots[currentBannerSlotIndex]}
-            alt="Advertising banner"
-            class="banner-inline-img"
-            width="100"
-            height="100%"
-          />
         </div>
       {/if}
     </div>
@@ -282,45 +304,251 @@
   .score-stack {
     display: flex;
     flex-direction: column;
+    align-items: flex-end;
+    gap: 0;
+    width: min(100%, 592px);
+  }
+
+  .score-bug {
+    display: inline-flex;
     align-items: stretch;
-    gap: 6px;
+    min-height: 50px;
+    background: linear-gradient(180deg, #111925 0%, #060c14 100%);
+    border: 1px solid rgba(255,255,255,0.18);
+    border-radius: 6px;
+    overflow: hidden;
+    box-shadow:
+      0 12px 26px rgba(0,0,0,0.45),
+      inset 0 1px 0 rgba(255,255,255,0.08);
+  }
+
+  .league-box,
+  .team-box,
+  .score-box,
+  .inning-box,
+  .count-box,
+  .outs-box,
+  .diamond-box {
+    align-items: center;
+    display: flex;
+    min-height: 50px;
+  }
+
+  .league-box {
+    justify-content: center;
+    margin: 10px 10px 10px 12px;
+    min-width: 52px;
+    min-height: 28px;
+    height: 28px;
+    padding: 0 10px;
+    border-radius: 4px;
+    background: linear-gradient(180deg, #ee2b2f 0%, #c70d18 100%);
+    color: #ffffff;
+    font-size: 0.95rem;
+    font-weight: 900;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.22);
+  }
+
+  .team-box {
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 1px;
+    min-width: 96px;
+    padding: 0 14px;
+    background: linear-gradient(180deg, #162338 0%, #0e192a 100%);
+    border-left: 1px solid rgba(255,255,255,0.04);
+    border-right: 1px solid rgba(0,0,0,0.65);
+  }
+
+  .team-short {
+    color: #ffffff;
+    font-size: 1.05rem;
+    font-weight: 900;
+    letter-spacing: 0.02em;
+    line-height: 1;
+    text-transform: uppercase;
+  }
+
+  .team-long {
+    color: #d7dbe3;
+    font-size: 0.54rem;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    line-height: 1.1;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  .score-box {
+    justify-content: center;
+    min-width: 44px;
+    padding: 0 10px;
+    background: linear-gradient(180deg, #111925 0%, #0a1019 100%);
+    color: #ffffff;
+    font-size: 1.85rem;
+    font-weight: 900;
+    font-variant-numeric: tabular-nums;
+    text-shadow: 0 1px 0 rgba(0,0,0,0.45);
+  }
+
+  .score-separator {
+    width: 6px;
+    background: linear-gradient(180deg, #ff1f5d 0%, #c4063b 100%);
+    box-shadow: inset 1px 0 0 rgba(255,255,255,0.18), inset -1px 0 0 rgba(0,0,0,0.35);
+  }
+
+  .inning-box {
+    justify-content: center;
+    gap: 4px;
+    min-width: 68px;
+    padding: 0 12px;
+    background: linear-gradient(180deg, #121923 0%, #0a1019 100%);
+    border-left: 1px solid rgba(255,255,255,0.04);
+  }
+
+  .half-arrow {
+    color: #ffd22e;
+    font-size: 0.9rem;
+    line-height: 1;
+    margin-top: -1px;
+  }
+
+  .inning-text {
+    color: #ffffff;
+    font-size: 1rem;
+    font-weight: 900;
+    letter-spacing: 0.01em;
+    line-height: 1;
+  }
+
+  .count-box,
+  .outs-box {
+    flex-direction: column;
+    justify-content: center;
+    gap: 2px;
+    min-width: 62px;
+    padding: 0 10px;
+    background: linear-gradient(180deg, #121923 0%, #0a1019 100%);
+    border-left: 1px solid rgba(255,255,255,0.04);
+  }
+
+  .count-main {
+    display: flex;
+    align-items: baseline;
+    gap: 2px;
+  }
+
+  .balls-text,
+  .strikes-text,
+  .count-divider {
+    font-size: 0.98rem;
+    font-weight: 900;
+    line-height: 1;
+  }
+
+  .balls-text {
+    color: #57ff2a;
+  }
+
+  .count-divider,
+  .strikes-text {
+    color: #ffd22e;
+  }
+
+  .count-caption,
+  .outs-caption {
+    color: #cfd6df;
+    font-size: 0.44rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    line-height: 1;
+    text-transform: uppercase;
+  }
+
+  .outs-pips {
+    display: flex;
+    gap: 4px;
+  }
+
+  .out-pip {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    border: 1px solid rgba(255, 94, 84, 0.42);
+    background: rgba(255, 168, 85, 0.18);
+  }
+
+  .out-pip.filled {
+    background: #ff453a;
+    border-color: #ff453a;
+  }
+
+  .bases-svg {
+    width: 34px;
+    height: 34px;
+    overflow: visible;
+  }
+
+  .diamond-box {
+    justify-content: center;
+    min-width: 54px;
+    padding: 0 10px;
+    background: linear-gradient(180deg, #121923 0%, #0a1019 100%);
+    border-left: 1px solid rgba(255,255,255,0.04);
   }
 
   .at-bat-strip {
     display: flex;
     align-items: center;
-    justify-content: center;
-    gap: 0.55rem;
-    background: linear-gradient(135deg, rgba(5,18,42,0.96), rgba(14,40,79,0.96));
-    border: 1px solid rgba(255,255,255,0.28);
-    border-radius: 8px;
-    padding: 0.4rem 0.75rem;
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.45);
-    animation: at-bat-enter 0.35s ease-out;
+    justify-content: flex-start;
+    gap: 0;
+    align-self: flex-end;
+    margin-top: -3px;
+    margin-right: 2px;
+    min-height: 29px;
+    max-width: calc(100% - 216px);
+    border-radius: 0 0 6px 6px;
+    border: 1px solid rgba(255,255,255,0.14);
+    background: linear-gradient(180deg, #152033 0%, #0a1019 100%);
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.38);
+    animation: panel-enter 0.35s ease-out;
+  }
+
+  .at-bat-strip.live {
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.38);
   }
 
   .at-bat-label {
-    color: #c9d8ff;
-    font-size: 0.58rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    align-self: stretch;
+    padding: 0 11px;
+    background: linear-gradient(180deg, #ffd91a 0%, #f1c400 100%);
+    color: #05080d;
+    font-size: 0.72rem;
     font-weight: 900;
-    letter-spacing: 0.16em;
+    letter-spacing: 0.05em;
     text-transform: uppercase;
-    opacity: 0.95;
   }
 
   .at-bat-name {
     color: #ffffff;
-    font-size: 0.82rem;
+    font-size: 0.54rem;
     font-weight: 900;
-    letter-spacing: 0.05em;
+    letter-spacing: 0.04em;
     text-transform: uppercase;
-    max-width: 330px;
+    padding: 0 12px;
+    min-width: 0;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
   }
 
-  @keyframes at-bat-enter {
+  @keyframes panel-enter {
     from {
       opacity: 0;
       transform: translateY(-6px);
@@ -473,182 +701,26 @@
     }
   }
 
-  .banner-strip {
-    align-self: flex-end;
-    animation: at-bat-enter 0.35s ease-out;
-  }
+  @media (max-width: 520px) {
+    .obs-container {
+      padding: 10px;
+    }
 
-  .banner-inline-img {
-    width: min(450px, 100%);
-    height: 100px;
-    object-fit: cover;
-    display: block;
-    border-radius: 8px;
-    border: 1px solid rgba(255,255,255,0.25);
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.45);
-  }
+    .score-stack {
+      width: 100%;
+    }
 
-  .score-bug {
-    position: relative;
-    display: flex;
-    flex-direction: row;
-    align-items: stretch;
-    background: linear-gradient(135deg, rgba(5,18,42,0.96), rgba(14,40,79,0.96));
-    border: 1px solid rgba(255,255,255,0.28);
-    border-radius: 8px;
-    overflow: hidden;
-    backdrop-filter: blur(10px);
-    box-shadow: 0 10px 26px rgba(0,0,0,0.56);
-    min-width: 280px;
-  }
+    .score-bug {
+      transform-origin: top right;
+      transform: scale(0.82);
+      margin-right: -48px;
+    }
 
-  .score-bug::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 2px;
-    background: linear-gradient(90deg, #d90429 0%, #ffffff 50%, #0a4db3 100%);
-    opacity: 0.9;
-    pointer-events: none;
-  }
-
-  .teams {
-    display: flex;
-    flex-direction: column;
-    border-right: 1px solid rgba(255,255,255,0.14);
-  }
-
-  .team-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 0.9rem;
-    padding: 0.45rem 0.75rem;
-  }
-
-  .divider {
-    height: 1px;
-    background: rgba(255,255,255,0.08);
-    margin: 0 0.5rem;
-  }
-
-  .team-name {
-    font-size: 0.74rem;
-    font-weight: 900;
-    text-transform: uppercase;
-    letter-spacing: 0.07em;
-    color: #ffffff;
-    text-shadow: 0 0 8px rgba(255, 255, 255, 0.18);
-    min-width: 40px;
-  }
-
-  .team-score {
-    font-size: 1.2rem;
-    font-weight: 900;
-    color: #FFE600;
-    font-variant-numeric: tabular-nums;
-    min-width: 1.5rem;
-    text-align: right;
-    line-height: 1;
-    text-shadow: 0 0 10px rgba(255, 230, 0, 0.38);
-  }
-
-  .game-info {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 0.45rem 0.72rem;
-    gap: 0.24rem;
-    background: rgba(0,0,0,0.2);
-  }
-
-  .inning-info {
-    display: flex;
-    align-items: center;
-    gap: 0.25rem;
-    color: #fff;
-  }
-
-  .half-arrow {
-    font-size: 0.6rem;
-    color: #f0c040;
-  }
-
-  .inning-text {
-    font-size: 0.78rem;
-    font-weight: 900;
-    color: #ffffff;
-    letter-spacing: 0.03em;
-  }
-
-  .count-info {
-    display: flex;
-    align-items: center;
-    gap: 0.2rem;
-  }
-
-  .count-section {
-    display: flex;
-    align-items: baseline;
-    gap: 1px;
-  }
-
-  .count-val {
-    font-size: 0.88rem;
-    font-weight: 900;
-    font-variant-numeric: tabular-nums;
-  }
-
-  .count-val.balls { color: #00FF7F; }
-  .count-val.strikes { color: #FFE600; }
-  .count-val.outs { color: #FF5555; }
-
-  .count-lbl {
-    font-size: 0.55rem;
-    font-weight: 800;
-    color: #aaaaaa;
-    text-transform: uppercase;
-  }
-
-  .count-sep {
-    color: rgba(255,255,255,0.2);
-    font-size: 0.7rem;
-  }
-
-  .outs-pips {
-    display: flex;
-    gap: 3px;
-  }
-
-  .bases-col {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0.45rem 0.72rem;
-    border-left: 1px solid rgba(255,255,255,0.14);
-    background: rgba(0,0,0,0.16);
-  }
-
-  .bases-svg {
-    width: 44px;
-    height: 44px;
-    overflow: visible;
-  }
-
-  .out-pip {
-    width: 7px;
-    height: 7px;
-    border-radius: 50%;
-    border: 1.5px solid rgba(248,113,113,0.4);
-    background: transparent;
-    transition: background 0.15s;
-  }
-
-  .out-pip.filled {
-    background: #f87171;
-    border-color: #f87171;
+    .at-bat-strip {
+      transform-origin: top right;
+      transform: scale(0.82);
+      margin-right: -1px;
+      max-width: calc(100% - 140px);
+    }
   }
 </style>
