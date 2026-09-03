@@ -274,6 +274,18 @@
         {/if}
       </div>
 
+      {#if bannerRotationSlots[currentBannerSlotIndex]}
+        <div class="banner-strip">
+          <img
+            src={bannerRotationSlots[currentBannerSlotIndex]}
+            alt="Advertising banner"
+            class="banner-inline-img"
+            width="450"
+            height="100"
+          />
+        </div>
+      {/if}
+
       {#if match.at_bat_text}
         <div class="at-bat-strip {showAtBatBanner ? 'live' : ''}">
           <span class="at-bat-label">NOW BATTING</span>
@@ -498,6 +510,21 @@
     padding: 0 10px;
     background: linear-gradient(180deg, #121923 0%, #0a1019 100%);
     border-left: 1px solid rgba(255,255,255,0.04);
+  }
+
+  .banner-strip {
+    align-self: flex-end;
+    animation: panel-enter 0.35s ease-out;
+  }
+
+  .banner-inline-img {
+    width: min(450px, 100%);
+    height: 100px;
+    object-fit: cover;
+    display: block;
+    border-radius: 8px;
+    border: 1px solid rgba(255,255,255,0.25);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.45);
   }
 
   .at-bat-strip {
