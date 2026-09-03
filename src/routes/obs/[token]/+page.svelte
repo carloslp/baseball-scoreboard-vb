@@ -17,11 +17,16 @@
   let bannerRotationSlots = []
   let currentBannerSlotIndex = 0
   let lastBannerConfig = ''
+  let atBatStats = []
+  let currentAtBatStats = null
+
+  const AT_BAT_STATS_URL = 'https://script.google.com/macros/s/AKfycby7mLKmo5tYeyah3g75xA9FS48FPDbq6SJMkFDPErFi9dgrNAvlOEeapwTQ2fZTlHZg/exec?token=dads-12w1-dd3f-da1g&id=1r56WDn_pgZwoAHiiWmeaadUe1hepXC3Mo4t4PWwwfbQ&hoja=AVG-Activo'
 
   $: token = $page.params.token || ''
+  $: currentAtBatStats = getAtBatStats(match?.at_bat_text)
 
   onMount(async () => {
-    await loadMatch()
+    await Promise.all([loadMatch(), loadAtBatStats()])
     subscribeToRealtime()
   })
 
@@ -58,7 +63,56 @@
     clearTimeout(atBatTimer)
     atBatTimer = setTimeout(() => {
       showAtBatBanner = false
-    }, 5000)
+    }, 10000)
+  }
+
+  /** @param {string | null | undefined} name */
+  function getShortBatterName(name) {
+    const parts = (name || '').trim().replace(/\s+/g, ' ').split(' ').filter(Boolean)
+    if (parts.length === 0) return ''
+    if (parts.length === 1) return parts[0]
+    return `${parts[0]} ${parts[1]}`
+  }
+
+  /** @param {string | null | undefined} name */
+  function normalizeName(name) {
+    return (name || '').trim().replace(/\s+/g, ' ').toLowerCase()
+  }
+
+  async function loadAtBatStats() {
+    try {
+      const response = await fetch(AT_BAT_STATS_URL)
+      const payload = await response.json()
+      const data = Array.isArray(payload?.data) ? payload.data : []
+      atBatStats = data
+        .map((item) => {
+          const fullName = typeof item?.Nombre === 'string' ? item.Nombre.trim() : ''
+          const shortName = getShortBatterName(fullName)
+          if (!shortName) return null
+          return {
+            fullName,
+            shortName,
+            AB: item?.AB ?? 0,
+            H: item?.H ?? 0,
+            HR: item?.HR ?? 0,
+            K: item?.K ?? 0,
+            AVG: item?.AVG ?? '.000'
+          }
+        })
+        .filter(Boolean)
+    } catch (err) {
+      atBatStats = []
+    }
+  }
+
+  /** @param {string | null | undefined} name */
+  function getAtBatStats(name) {
+    const normalized = normalizeName(name)
+    if (!normalized) return null
+    return atBatStats.find((item) => (
+      normalizeName(item.shortName) === normalized
+      || normalizeName(item.fullName) === normalized
+    )) || null
   }
 
   function triggerHomeRunAnimation() {
@@ -277,7 +331,7 @@
       {#if match.at_bat_text}
         <div class="at-bat-strip {showAtBatBanner ? 'live' : ''}">
           <span class="at-bat-label">NOW BATTING</span>
-          <span class="at-bat-name">{match.at_bat_text}</span>
+          <span class="at-bat-name">{getShortBatterName(match.at_bat_text)}{#if currentAtBatStats} · AB {currentAtBatStats.AB} · H {currentAtBatStats.H} · HR {currentAtBatStats.HR} · K {currentAtBatStats.K} · AVG {currentAtBatStats.AVG}{/if}</span>
         </div>
       {/if}
     </div>
