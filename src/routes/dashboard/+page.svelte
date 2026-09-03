@@ -279,6 +279,14 @@
     })
   }
 
+  /** @param {number} number */
+  function getOrdinal(number) {
+    const lastTwoDigits = number % 100
+    if (lastTwoDigits >= 11 && lastTwoDigits <= 13) return number + 'th'
+    const lastDigit = number % 10
+    return number + (['th', 'st', 'nd', 'rd'][lastDigit] || 'th')
+  }
+
   /** @param {string | null | undefined} name */
   function getTeamParts(name) {
     const normalized = (name || '').trim().replace(/\s+/g, ' ')
