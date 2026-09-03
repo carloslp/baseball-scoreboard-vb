@@ -271,6 +271,14 @@
     await updateMatch({ home_run_counter: (match.home_run_counter || 0) + 1 })
   }
 
+  function isValidBannerConfig(value) {
+    const lines = (value || '').replace(/\r\n/g, '\n').split('\n')
+    return lines.every((line) => {
+      const trimmed = line.trim()
+      return !trimmed || trimmed.startsWith('https://')
+    })
+  }
+
   onDestroy(() => {
     clearTimeout(nameDebounceTimer)
     clearTimeout(flashTimer)
@@ -505,29 +513,27 @@
               </label>
             </div>
             <div class="banner-url-row">
-              <label class="banner-url-label" for="banner-url-input">Advertising banner (450×100) — Image URL (https://)</label>
+              <label class="banner-url-label" for="banner-url-input">Advertising banners (450×100) — one image URL per line</label>
               <div class="banner-url-input-row">
-                <input
+                <textarea
                   id="banner-url-input"
-                  type="url"
-                  inputmode="url"
                   value={match.banner_url || ''}
-                  placeholder="https://example.com/banner.png"
+                  placeholder="https://example.com/banner-1.png&#10;&#10;https://example.com/banner-2.png"
                   class="banner-url-input"
                   on:change={(e) => {
-                    const val = e.target.value.trim()
-                    if (val && !val.startsWith('https://')) {
-                      error = 'Banner URL must start with https://'
+                    const val = (e.target.value || '').replace(/\r\n/g, '\n')
+                    if (!isValidBannerConfig(val)) {
+                      error = 'Each banner URL must start with https://'
                       return
                     }
-                    updateMatch({ banner_url: val || null })
+                    updateMatch({ banner_url: val.trim() ? val : null })
                   }}
-                />
+                ></textarea>
                 {#if match.banner_url}
                   <button class="btn-clear-banner" on:click={() => updateMatch({ banner_url: null })} title="Remove banner">✕</button>
                 {/if}
               </div>
-              <p class="obs-note banner-note">Shown in the top-left corner of the OBS overlay (450×100 px). Must be an https:// URL.</p>
+              <p class="obs-note banner-note">Banners rotate automatically in OBS. Leave blank lines to create intentional no-ad slots; even without blank lines, the rotation includes no-ad moments.</p>
             </div>
             <p class="obs-note">The score is always visible. Changes apply instantly to the OBS overlay.</p>
           </section>
@@ -1631,7 +1637,9 @@
     color: #ffffff;
     font-size: 0.85rem;
     padding: 0.45rem 0.75rem;
-    min-height: 36px;
+    min-height: 100px;
+    resize: vertical;
+    font-family: inherit;
   }
 
   .banner-url-input:focus {
