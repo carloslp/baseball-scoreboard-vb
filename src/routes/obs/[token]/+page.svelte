@@ -390,7 +390,7 @@
     display: inline-flex;
     align-items: stretch;
     min-height: 50px;
-    background: linear-gradient(180deg, #111925 0%, #060c14 100%);
+    background: linear-gradient(180deg, #0a2351 0%, #041e42 100%);
     border: 1px solid rgba(255,255,255,0.18);
     border-radius: 6px;
     overflow: hidden;
@@ -419,7 +419,7 @@
     height: 28px;
     padding: 0 10px;
     border-radius: 4px;
-    background: linear-gradient(180deg, #ee2b2f 0%, #c70d18 100%);
+    background: linear-gradient(180deg, #d50032 0%, #ba0c2f 100%);
     color: #ffffff;
     font-size: 0.95rem;
     font-weight: 900;
@@ -435,7 +435,7 @@
     gap: 1px;
     min-width: 96px;
     padding: 0 14px;
-    background: linear-gradient(180deg, #162338 0%, #0e192a 100%);
+    background: linear-gradient(180deg, #12356b 0%, #0a2351 100%);
     border-left: 1px solid rgba(255,255,255,0.04);
     border-right: 1px solid rgba(0,0,0,0.65);
   }
@@ -450,7 +450,7 @@
   }
 
   .team-long {
-    color: #d7dbe3;
+    color: #dbe6ff;
     font-size: 0.54rem;
     font-weight: 800;
     letter-spacing: 0.04em;
@@ -463,7 +463,7 @@
     justify-content: center;
     min-width: 44px;
     padding: 0 10px;
-    background: linear-gradient(180deg, #111925 0%, #0a1019 100%);
+    background: linear-gradient(180deg, #081a3a 0%, #041e42 100%);
     color: #ffffff;
     font-size: 1.85rem;
     font-weight: 900;
@@ -473,7 +473,7 @@
 
   .score-separator {
     width: 6px;
-    background: linear-gradient(180deg, #ff1f5d 0%, #c4063b 100%);
+    background: linear-gradient(180deg, #d50032 0%, #ba0c2f 100%);
     box-shadow: inset 1px 0 0 rgba(255,255,255,0.18), inset -1px 0 0 rgba(0,0,0,0.35);
   }
 
@@ -482,12 +482,12 @@
     gap: 4px;
     min-width: 68px;
     padding: 0 12px;
-    background: linear-gradient(180deg, #121923 0%, #0a1019 100%);
+    background: linear-gradient(180deg, #081a3a 0%, #041e42 100%);
     border-left: 1px solid rgba(255,255,255,0.04);
   }
 
   .half-arrow {
-    color: #ffd22e;
+    color: #d50032;
     font-size: 0.9rem;
     line-height: 1;
     margin-top: -1px;
