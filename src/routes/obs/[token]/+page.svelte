@@ -13,6 +13,10 @@
   let atBatTimer = null
   let showHomeRunAnimation = false
   let homeRunTimer = null
+  let bannerRotationTimer = null
+  let bannerRotationSlots = []
+  let currentBannerSlotIndex = 0
+  let lastBannerConfig = ''
 
   $: token = $page.params.token
 
@@ -24,6 +28,7 @@
   onDestroy(() => {
     clearTimeout(atBatTimer)
     clearTimeout(homeRunTimer)
+    clearInterval(bannerRotationTimer)
     if (channel) {
       supabase.removeChannel(channel)
     }
@@ -40,8 +45,10 @@
 
     if (!error) {
       match = data
+      syncBannerRotation()
     } else {
       match = null
+      syncBannerRotation()
     }
     loading = false
   }
@@ -79,6 +86,7 @@
               const prevCounter = match?.home_run_counter || 0
               const prevAtBatCounter = match?.at_bat_counter || 0
               match = payload.new
+              syncBannerRotation()
               if ((payload.new.at_bat_counter || 0) > prevAtBatCounter && payload.new.at_bat_text) {
                 triggerAtBatBanner()
               }
@@ -87,13 +95,53 @@
               }
             } else {
               match = null
+              syncBannerRotation()
             }
           } else if (payload.eventType === 'DELETE') {
             match = null
+            syncBannerRotation()
           }
         }
       )
       .subscribe()
+  }
+
+  function buildBannerRotationSlots(value) {
+    if (typeof value !== 'string') return []
+
+    const lines = value.replace(/\r\n/g, '\n').split('\n')
+    const slots = []
+    let hasValidBanner = false
+
+    for (const line of lines) {
+      const trimmed = line.trim()
+      if (!trimmed) {
+        slots.push(null)
+      } else if (trimmed.startsWith('https://')) {
+        slots.push(trimmed)
+        hasValidBanner = true
+      }
+    }
+
+    if (!hasValidBanner) return []
+    if (!slots.includes(null)) slots.push(null)
+    return slots
+  }
+
+  function syncBannerRotation() {
+    const bannerConfig = typeof match?.banner_url === 'string' ? match.banner_url : ''
+    if (bannerConfig === lastBannerConfig) return
+
+    lastBannerConfig = bannerConfig
+    bannerRotationSlots = buildBannerRotationSlots(bannerConfig)
+    currentBannerSlotIndex = 0
+    clearInterval(bannerRotationTimer)
+
+    if (bannerRotationSlots.length > 1) {
+      bannerRotationTimer = setInterval(() => {
+        currentBannerSlotIndex = (currentBannerSlotIndex + 1) % bannerRotationSlots.length
+      }, 8000)
+    }
   }
 
   function getOrdinal(number) {
@@ -126,11 +174,6 @@
             <span class="home-run-impact" aria-hidden="true"></span>
           </div>
         </div>
-      </div>
-    {/if}
-    {#if match.banner_url && match.banner_url.startsWith('https://')}
-      <div class="banner-corner">
-        <img src={match.banner_url} alt="Advertising banner" class="banner-img" width="450" height="100" />
       </div>
     {/if}
     <div class="score-stack">
@@ -198,6 +241,17 @@
         </div>
         {/if}
       </div>
+      {#if bannerRotationSlots[currentBannerSlotIndex]}
+        <div class="banner-strip">
+          <img
+            src={bannerRotationSlots[currentBannerSlotIndex]}
+            alt="Advertising banner"
+            class="banner-inline-img"
+            width="450"
+            height="100"
+          />
+        </div>
+      {/if}
       {#if showAtBatBanner && match.at_bat_text}
         <div class="at-bat-strip">
           <span class="at-bat-label">NOW BATTING</span>
@@ -419,17 +473,19 @@
     }
   }
 
-  .banner-corner {
-    position: fixed;
-    top: 20px;
-    left: 20px;
+  .banner-strip {
+    align-self: flex-end;
+    animation: at-bat-enter 0.35s ease-out;
   }
 
-  .banner-img {
-    width: 450px;
+  .banner-inline-img {
+    width: min(450px, 100%);
     height: 100px;
     object-fit: cover;
     display: block;
+    border-radius: 8px;
+    border: 1px solid rgba(255,255,255,0.25);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.45);
   }
 
   .score-bug {
