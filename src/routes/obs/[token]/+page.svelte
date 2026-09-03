@@ -328,6 +328,15 @@
         {/if}
       </div>
 
+
+
+      {#if showAtBatBanner && match.at_bat_text}
+        <div class="at-bat-strip {showAtBatBanner ? 'live' : ''}">
+          <span class="at-bat-label">NOW BATTING</span>
+          <span class="at-bat-name">{getShortBatterName(match.at_bat_text)}{#if currentAtBatStats} · AB {currentAtBatStats.AB} · H {currentAtBatStats.H} · HR {currentAtBatStats.HR} · K {currentAtBatStats.K} · AVG {currentAtBatStats.AVG}{/if}</span>
+        </div>
+      {/if}
+
       {#if bannerRotationSlots[currentBannerSlotIndex]}
         <div class="banner-strip">
           <img
@@ -340,12 +349,6 @@
         </div>
       {/if}
 
-      {#if showAtBatBanner && match.at_bat_text}
-        <div class="at-bat-strip {showAtBatBanner ? 'live' : ''}">
-          <span class="at-bat-label">NOW BATTING</span>
-          <span class="at-bat-name">{getShortBatterName(match.at_bat_text)}{#if currentAtBatStats} · AB {currentAtBatStats.AB} · H {currentAtBatStats.H} · HR {currentAtBatStats.HR} · K {currentAtBatStats.K} · AVG {currentAtBatStats.AVG}{/if}</span>
-        </div>
-      {/if}
     </div>
   {/if}
 </div>
