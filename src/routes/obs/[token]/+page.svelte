@@ -253,7 +253,7 @@
             src={bannerRotationSlots[currentBannerSlotIndex]}
             alt="Advertising banner"
             class="banner-inline-img"
-            width="250"
+            width="100"
             height="100%"
           />
         </div>
